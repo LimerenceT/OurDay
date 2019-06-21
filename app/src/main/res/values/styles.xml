@@ -6,9 +6,12 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowTranslucentStatus">false</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <!--<item name="android:windowTranslucentStatus">false</item>-->
+        <!--<item name="android:windowTranslucentNavigation">false</item>-->
+        <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>-->
+        <!--<item name="android:statusBarColor">@android:color/transparent</item>-->
+        <!--<item name="android:navigationBarColor">@android:color/transparent</item>-->
         <!--<item name="android:windowLightStatusBar">true</item>-->
 
     </style>
@@ -21,6 +24,8 @@
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="elevation">0dp</item>
+        <!--这里设置才有用，xml设置失效，原理还不知道。作用是AppBarLayout设置一个padding让这个view不会跑到StatusBar上-->
+        <item name="android:fitsSystemWindows">true</item>
     </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />

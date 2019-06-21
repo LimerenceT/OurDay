@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -18,14 +18,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.day.ourday.dummy.DummyContent;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -46,21 +44,55 @@ public class ItemListActivity extends AppCompatActivity {
      */
     private boolean mTwoPane;
     private static final int REQUEST_CODE_GALLERY = 0x10;
-    private File imageFile = null;// 声明File对象
-    private static final int CROP_PHOTO = 0x12;// 裁剪图片标识请求码
-
     private ImageView imageView;
-    private Uri imageUri = null;// 裁剪后的图片uri
 
-    private void gallery() {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_item_list);
+
+        imageView = findViewById(R.id.imageView);
+        requestStoragePermission();
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickPictureFromGallery();
+            }
+        });
+
+        if (findViewById(R.id.item_detail_container) != null) {
+            // The detail container view will be present only in the
+            // large-screen layouts (res/values-w900dp).
+            // If this view is present, then the
+            // activity should be in two-pane mode.
+            mTwoPane = true;
+        }
+
+        View recyclerView = findViewById(R.id.item_list);
+        assert recyclerView != null;
+        setupRecyclerView((RecyclerView) recyclerView);
+
+        // 设置背景图全屏显示
+        View decorView = getWindow().getDecorView();
+        int option = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+        decorView.setSystemUiVisibility(option);
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+    }
+
+    // TODO: 2019-06-22 存储选择的图片，以后提供一个界面再次选择
+    // FIXME: 2019-06-22 图片方向问题
+    private void pickPictureFromGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         // 以startActivityForResult的方式启动一个activity用来获取返回的结果
         startActivityForResult(intent, REQUEST_CODE_GALLERY);
 
     }
 
-    private void requestStoragePermission() {
 
+    private void requestStoragePermission() {
         int hasCameraPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
         int writePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         Log.e("TAG", "开始" + hasCameraPermission);
@@ -77,117 +109,19 @@ public class ItemListActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {// 操作成功了
-
-            switch (requestCode) {
-
-                case REQUEST_CODE_GALLERY:// 图库选择图片
-
-                    int height = getWindow().getDecorView().getHeight();
-                    int width = getWindow().getDecorView().getWidth();
-                    Uri uri = data.getData();// 获取图片的uri
-
-                    Intent intent_gallery_crop = new Intent("com.android.camera.action.CROP");
-                    intent_gallery_crop.setDataAndType(uri, "image/*");
-
-                    // 设置裁剪
-                    intent_gallery_crop.putExtra("crop", "true");
-                    intent_gallery_crop.putExtra("scale", true);
-                    // aspectX aspectY 是宽高的比例
-                    intent_gallery_crop.putExtra("aspectX", 3);
-                    intent_gallery_crop.putExtra("aspectY", 4);
-                    // outputX outputY 是裁剪图片宽高
-                    intent_gallery_crop.putExtra("outputX", width);
-                    intent_gallery_crop.putExtra("outputY", height);
-
-                    intent_gallery_crop.putExtra("return-data", false);
-
-                    // 创建文件保存裁剪的图片
-                    createImageFile();
-                    imageUri = Uri.fromFile(imageFile);
-
-                    if (imageUri != null) {
-                        intent_gallery_crop.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                        intent_gallery_crop.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
-                    }
-
-                    startActivityForResult(intent_gallery_crop, CROP_PHOTO);
-
-                    break;
-
-                case CROP_PHOTO:// 裁剪图片
-
-                    try {
-
-                        if (imageUri != null) {
-                            displayImage(imageUri);
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    break;
-
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_GALLERY) {
+            try {
+                displayImage(data.getData());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
         }
-    }
-
-    private void createImageFile() {
-
-        try {
-
-            if (imageFile != null && imageFile.exists()) {
-                imageFile.delete();
-            }
-
-          Log.d("dd",this.getFilesDir().getPath());
-            imageFile = new File(this.getFilesDir().getPath(),System.currentTimeMillis() + "galleryDemo.jpg");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     private void displayImage(Uri imageUri) throws IOException {
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-        BitmapDrawable bd = new BitmapDrawable(getResources(), bitmap);
-//        imageView.setImageBitmap(bitmap);
-        imageView.setBackground(bd);
+        imageView.setImageBitmap(bitmap);
 
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_item_list);
-//        Toolbar toolbar = findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-        imageView = findViewById(R.id.imageView);
-        requestStoragePermission();
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-                gallery();
-            }
-        });
-
-        if (findViewById(R.id.item_detail_container) != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-w900dp).
-            // If this view is present, then the
-            // activity should be in two-pane mode.
-            mTwoPane = true;
-        }
-
-        View recyclerView = findViewById(R.id.item_list);
-        assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
     }
 
 
