@@ -1,19 +1,20 @@
 package com.day.ourday;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,7 +22,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.day.ourday.dummy.DummyContent;
+import com.commit451.nativestackblur.NativeStackBlur;
+import com.day.ourday.adapter.SimpleItemRecyclerViewAdapter;
+import com.day.ourday.data.AppDatabase;
+import com.day.ourday.data.entity.Item;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
@@ -32,8 +36,8 @@ import java.util.List;
  * has different presentations for handset and tablet-size devices. On
  * handsets, the activity presents a list of items, which when touched,
  * lead to a {@link ItemDetailActivity} representing
- * item details. On tablets, the activity presents the list of items and
- * item details side-by-side using two vertical panes.
+ * Item details. On tablets, the activity presents the list of items and
+ * Item details side-by-side using two vertical panes.
  */
 public class ItemListActivity extends AppCompatActivity {
 
@@ -45,6 +49,13 @@ public class ItemListActivity extends AppCompatActivity {
     private boolean mTwoPane;
     private static final int REQUEST_CODE_GALLERY = 0x10;
     private ImageView imageView;
+    private ImageView imageBlurView;
+    private TextView textViewProgress;
+    private RecyclerView recyclerView;
+    private HandlerThread queryThread;
+    private Handler backgroundHandler;
+
+
 
 
     @Override
@@ -53,12 +64,47 @@ public class ItemListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_item_list);
 
         imageView = findViewById(R.id.imageView);
+        imageBlurView = findViewById(R.id.imageBlurView);
         requestStoragePermission();
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 pickPictureFromGallery();
+            }
+        });
+
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.tang);
+        final Bitmap blurBitmap = NativeStackBlur.process(bitmap,50);
+
+        textViewProgress = findViewById(R.id.textViewProgress);
+        SeekBar seekBar = findViewById(R.id.seekBar);
+        seekBar.setMax(160);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            boolean blur = false;
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                imageBlurView.setVisibility(View.VISIBLE);
+                textViewProgress.setText(String.valueOf(i));
+                imageBlurView.getBackground().setAlpha(i);
+                if (i>150 && !blur) {
+                    imageView.setImageBitmap(blurBitmap);
+                    blur = true;
+                }
+                if (i<150 && blur) {
+                    imageView.setImageResource(R.drawable.tang);
+                    blur = false;
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
 
@@ -70,9 +116,14 @@ public class ItemListActivity extends AppCompatActivity {
             mTwoPane = true;
         }
 
-        View recyclerView = findViewById(R.id.item_list);
-        assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
+        recyclerView = findViewById(R.id.item_list);
+        startBackgroundThread();
+        backgroundHandler.post(() -> {
+            assert recyclerView != null;
+            List<Item> items = AppDatabase.getInstance(this).itemDao().getAllItems();
+            setupRecyclerView(recyclerView, items);
+        });
+
 
         // 设置背景图全屏显示
         View decorView = getWindow().getDecorView();
@@ -81,6 +132,7 @@ public class ItemListActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(option);
         getWindow().setStatusBarColor(Color.TRANSPARENT);
     }
+
 
     // TODO: 2019-06-22 存储选择的图片，以后提供一个界面再次选择
     // FIXME: 2019-06-22 图片方向问题
@@ -121,80 +173,45 @@ public class ItemListActivity extends AppCompatActivity {
     private void displayImage(Uri imageUri) throws IOException {
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
         imageView.setImageBitmap(bitmap);
-
     }
 
 
-    private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
+    private void setupRecyclerView(@NonNull RecyclerView recyclerView, List<Item> items) {
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, items, mTwoPane));
     }
 
-    public static class SimpleItemRecyclerViewAdapter
-            extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
-        private final ItemListActivity mParentActivity;
-        private final List<DummyContent.DummyItem> mValues;
-        private final boolean mTwoPane;
-        private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DummyContent.DummyItem item = (DummyContent.DummyItem) view.getTag();
-                if (mTwoPane) {
-                    Bundle arguments = new Bundle();
-                    arguments.putString(ItemDetailFragment.ARG_ITEM_ID, item.id);
-                    ItemDetailFragment fragment = new ItemDetailFragment();
-                    fragment.setArguments(arguments);
-                    mParentActivity.getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.item_detail_container, fragment)
-                            .commit();
-                } else {
-                    Context context = view.getContext();
-                    Intent intent = new Intent(context, ItemDetailActivity.class);
-                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, item.id);
 
-                    context.startActivity(intent);
-                }
-            }
-        };
-
-        SimpleItemRecyclerViewAdapter(ItemListActivity parent,
-                                      List<DummyContent.DummyItem> items,
-                                      boolean twoPane) {
-            mValues = items;
-            mParentActivity = parent;
-            mTwoPane = twoPane;
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_list_content, parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(mValues.get(position).id);
-            holder.mContentView.setText(mValues.get(position).content);
-
-            holder.itemView.setTag(mValues.get(position));
-            holder.itemView.setOnClickListener(mOnClickListener);
-        }
-
-        @Override
-        public int getItemCount() {
-            return mValues.size();
-        }
-
-        class ViewHolder extends RecyclerView.ViewHolder {
-            final TextView mIdView;
-            final TextView mContentView;
-
-            ViewHolder(View view) {
-                super(view);
-                mIdView = view.findViewById(R.id.id_text);
-                mContentView = view.findViewById(R.id.content);
-            }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (queryThread == null) {
+            startBackgroundThread();
         }
     }
+
+    @Override
+    protected void onPause() {
+        stopBackgroundThread();
+        super.onPause();
+    }
+
+    private void startBackgroundThread() {
+        queryThread = new HandlerThread("query");
+        queryThread.start();
+        backgroundHandler = new Handler(queryThread.getLooper());
+    }
+
+    private void stopBackgroundThread() {
+        queryThread.quitSafely();
+        try {
+            queryThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        queryThread = null;
+        backgroundHandler = null;
+    }
+
+
 }

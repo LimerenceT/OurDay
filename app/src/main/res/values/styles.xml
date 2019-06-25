@@ -7,12 +7,12 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
-        <!--<item name="android:windowTranslucentStatus">false</item>-->
-        <!--<item name="android:windowTranslucentNavigation">false</item>-->
-        <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>-->
-        <!--<item name="android:statusBarColor">@android:color/transparent</item>-->
-        <!--<item name="android:navigationBarColor">@android:color/transparent</item>-->
-        <!--<item name="android:windowLightStatusBar">true</item>-->
+        <!--<Item name="android:windowTranslucentStatus">false</Item>-->
+        <!--<Item name="android:windowTranslucentNavigation">false</Item>-->
+        <!--<Item name="android:windowDrawsSystemBarBackgrounds">true</Item>-->
+        <!--<Item name="android:statusBarColor">@android:color/transparent</Item>-->
+        <!--<Item name="android:navigationBarColor">@android:color/transparent</Item>-->
+        <!--<Item name="android:windowLightStatusBar">true</Item>-->
 
     </style>
 

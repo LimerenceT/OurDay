@@ -1,4 +1,4 @@
-package com.day.ourday;
+package com.day.ourday.fragment;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -9,7 +9,10 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
-import com.day.ourday.dummy.DummyContent;
+import com.day.ourday.R;
+import com.day.ourday.activity.ItemDetailActivity;
+import com.day.ourday.activity.ItemListActivity;
+import com.day.ourday.data.entity.Item;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 /**
@@ -20,7 +23,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
  */
 public class ItemDetailFragment extends Fragment {
     /**
-     * The fragment argument representing the item ID that this fragment
+     * The fragment argument representing the Item ID that this fragment
      * represents.
      */
     public static final String ARG_ITEM_ID = "item_id";
@@ -28,7 +31,7 @@ public class ItemDetailFragment extends Fragment {
     /**
      * The dummy content this fragment is presenting.
      */
-    private DummyContent.DummyItem mItem;
+    private Item mItem;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -45,12 +48,12 @@ public class ItemDetailFragment extends Fragment {
             // Load the dummy content specified by the fragment
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
-            mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+            mItem = (Item) getArguments().getSerializable(ARG_ITEM_ID);
 
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem.content);
+                appBarLayout.setTitle(mItem.getName());
             }
         }
     }
@@ -62,7 +65,7 @@ public class ItemDetailFragment extends Fragment {
 
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.item_detail)).setText(mItem.details);
+            ((TextView) rootView.findViewById(R.id.item_detail)).setText(mItem.getDate().toString());
         }
 
         return rootView;
