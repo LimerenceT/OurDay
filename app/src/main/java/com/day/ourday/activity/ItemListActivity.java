@@ -1,6 +1,7 @@
-package com.day.ourday;
+package com.day.ourday.activity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -10,25 +11,37 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bigkoo.pickerview.builder.TimePickerBuilder;
+import com.bigkoo.pickerview.listener.OnTimeSelectListener;
+import com.bigkoo.pickerview.view.TimePickerView;
 import com.commit451.nativestackblur.NativeStackBlur;
+import com.day.ourday.AddWindow;
+import com.day.ourday.R;
 import com.day.ourday.adapter.SimpleItemRecyclerViewAdapter;
 import com.day.ourday.data.AppDatabase;
 import com.day.ourday.data.entity.Item;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -50,12 +63,12 @@ public class ItemListActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_GALLERY = 0x10;
     private ImageView imageView;
     private ImageView imageBlurView;
+    private TextView addItemTextView;
+    private TextView menuTextView;
     private TextView textViewProgress;
     private RecyclerView recyclerView;
     private HandlerThread queryThread;
     private Handler backgroundHandler;
-
-
 
 
     @Override
@@ -65,20 +78,28 @@ public class ItemListActivity extends AppCompatActivity {
 
         imageView = findViewById(R.id.imageView);
         imageBlurView = findViewById(R.id.imageBlurView);
-        requestStoragePermission();
+        recyclerView = findViewById(R.id.item_list);
+        textViewProgress = findViewById(R.id.textViewProgress);
+        addItemTextView = findViewById(R.id.addItem);
+        menuTextView = findViewById(R.id.menu);
+        if (findViewById(R.id.item_detail_container) != null) {
+            // The detail container view will be present only in the
+            // large-screen layouts (res/values-w900dp).
+            // If this view is present, then the
+            // activity should be in two-pane mode.
+            mTwoPane = true;
+        }
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                pickPictureFromGallery();
-            }
-        });
+        SeekBar seekBar = findViewById(R.id.seekBar);
 
+        requestStoragePermission();
+
+        fab.setOnClickListener(view -> pickPictureFromGallery());
+
+
+        // 默认模糊背景图片
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.tang);
         final Bitmap blurBitmap = NativeStackBlur.process(bitmap,50);
-
-        textViewProgress = findViewById(R.id.textViewProgress);
-        SeekBar seekBar = findViewById(R.id.seekBar);
         seekBar.setMax(160);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             boolean blur = false;
@@ -108,29 +129,40 @@ public class ItemListActivity extends AppCompatActivity {
             }
         });
 
-        if (findViewById(R.id.item_detail_container) != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-w900dp).
-            // If this view is present, then the
-            // activity should be in two-pane mode.
-            mTwoPane = true;
-        }
+        addItemTextView.setOnClickListener(view -> {
 
-        recyclerView = findViewById(R.id.item_list);
+        });
+
+
         startBackgroundThread();
         backgroundHandler.post(() -> {
             assert recyclerView != null;
             List<Item> items = AppDatabase.getInstance(this).itemDao().getAllItems();
-            setupRecyclerView(recyclerView, items);
+            runOnUiThread(()->setupRecyclerView(recyclerView, items));
         });
+        displayFullBackground(this);
+        //时间选择器
+        TimePickerView pvTime = new TimePickerBuilder(ItemListActivity.this, (date, v) ->
+                Toast.makeText(ItemListActivity.this, date.toString(), Toast.LENGTH_SHORT).show())
+                .setCancelText("取消")
+                .setSubmitText("确定")
+                .build();
+        addItemTextView.setOnClickListener(view -> {
+            // TODO: 2019-06-25   pop window show
+//            pvTime.show();
+            startActivity(new Intent(this, AddActivity.class));
+        });
+    }
 
-
-        // 设置背景图全屏显示
-        View decorView = getWindow().getDecorView();
+    /**
+     * 设置背景图全屏显示
+     */
+    public static void displayFullBackground(Activity activity) {
+        View decorView = activity.getWindow().getDecorView();
         int option = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
         decorView.setSystemUiVisibility(option);
-        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        activity.getWindow().setStatusBarColor(Color.TRANSPARENT);
     }
 
 
@@ -200,6 +232,7 @@ public class ItemListActivity extends AppCompatActivity {
         queryThread = new HandlerThread("query");
         queryThread.start();
         backgroundHandler = new Handler(queryThread.getLooper());
+
     }
 
     private void stopBackgroundThread() {
@@ -212,6 +245,4 @@ public class ItemListActivity extends AppCompatActivity {
         queryThread = null;
         backgroundHandler = null;
     }
-
-
 }
