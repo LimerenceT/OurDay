@@ -6,6 +6,8 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.day.ourday.data.dao.ItemDao;
 import com.day.ourday.data.entity.Item;
@@ -13,8 +15,8 @@ import com.day.ourday.data.entity.Item;
 /**
  * Create by LimerenceT on 2019-06-24
  */
-@Database(entities = {Item.class}, version = 1)
-@TypeConverters({DateConverter.class})
+@Database(entities = {Item.class}, version = 2)
+//@TypeConverters({DateConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
@@ -26,6 +28,7 @@ public abstract class AppDatabase extends RoomDatabase {
             if (INSTANCE == null) {
                 INSTANCE =
                         Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "app.db")
+                                .fallbackToDestructiveMigration()
                                 .build();
             }
             return INSTANCE;

@@ -63,7 +63,7 @@ public class SimpleItemRecyclerViewAdapter
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(mValues.get(position).getId());
+            holder.mIdView.setText(String.valueOf(mValues.get(position).getId()));
             holder.mContentView.setText(mValues.get(position).getName());
 
             holder.itemView.setTag(mValues.get(position));

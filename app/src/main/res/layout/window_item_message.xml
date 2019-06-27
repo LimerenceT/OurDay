@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/window_item"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
-    android:background="@drawable/tang"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/shadow"
+        android:background="#72000000"
         android:orientation="vertical">
 
 
@@ -51,13 +51,14 @@
         </androidx.appcompat.widget.Toolbar>
 
         <LinearLayout
+            android:id="@+id/line"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="40dp"
             android:divider="@drawable/line_shape"
             android:dividerPadding="5dp"
             android:orientation="vertical"
-            android:showDividers="middle">
+            android:showDividers="middle|end">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -67,21 +68,24 @@
                 android:padding="5dp">
 
                 <TextView
-                    android:id="@+id/textView"
+                    android:id="@+id/text_view"
                     android:layout_width="70dp"
                     android:layout_height="match_parent"
                     android:text="名字"
                     android:textAlignment="textStart"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@android:color/white"
                     android:textStyle="bold" />
 
                 <EditText
+                    android:id="@+id/edit_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@null"
-                    android:singleLine="true"
                     android:gravity="end|center_vertical"
+                    android:singleLine="true"
                     android:text="某天"
+                    android:textColor="@android:color/white"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small" />
             </LinearLayout>
 
@@ -97,19 +101,26 @@
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:text="日期"
+                    android:textColor="@android:color/white"
                     android:textAlignment="textStart"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/textView3"
+                    android:id="@+id/date"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="end|center_vertical"
+                    android:textColor="@android:color/white"
                     android:text="2018.06.1" />
 
             </LinearLayout>
 
         </LinearLayout>
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/shadow"/>
 </LinearLayout>

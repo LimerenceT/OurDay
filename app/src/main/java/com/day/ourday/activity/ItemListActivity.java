@@ -2,22 +2,23 @@ package com.day.ourday.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -25,14 +26,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
-import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.commit451.nativestackblur.NativeStackBlur;
-import com.day.ourday.AddWindow;
+import com.day.ourday.BitmapUtil;
+import com.day.ourday.MoreWindow;
 import com.day.ourday.R;
 import com.day.ourday.adapter.SimpleItemRecyclerViewAdapter;
 import com.day.ourday.data.AppDatabase;
@@ -40,8 +42,8 @@ import com.day.ourday.data.entity.Item;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -69,13 +71,14 @@ public class ItemListActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private HandlerThread queryThread;
     private Handler backgroundHandler;
+    private MoreWindow mMoreWindow;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
-
+        requestStoragePermission(this);
         imageView = findViewById(R.id.imageView);
         imageBlurView = findViewById(R.id.imageBlurView);
         recyclerView = findViewById(R.id.item_list);
@@ -92,27 +95,27 @@ public class ItemListActivity extends AppCompatActivity {
         FloatingActionButton fab = findViewById(R.id.fab);
         SeekBar seekBar = findViewById(R.id.seekBar);
 
-        requestStoragePermission();
-
         fab.setOnClickListener(view -> pickPictureFromGallery());
 
 
         // 默认模糊背景图片
+        // TODO: 2019-06-28 处理
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.tang);
-        final Bitmap blurBitmap = NativeStackBlur.process(bitmap,50);
+        final Bitmap blurBitmap = NativeStackBlur.process(bitmap, 50);
         seekBar.setMax(160);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             boolean blur = false;
+
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 imageBlurView.setVisibility(View.VISIBLE);
                 textViewProgress.setText(String.valueOf(i));
                 imageBlurView.getBackground().setAlpha(i);
-                if (i>150 && !blur) {
+                if (i > 150 && !blur) {
                     imageView.setImageBitmap(blurBitmap);
                     blur = true;
                 }
-                if (i<150 && blur) {
+                if (i < 150 && blur) {
                     imageView.setImageResource(R.drawable.tang);
                     blur = false;
                 }
@@ -129,28 +132,23 @@ public class ItemListActivity extends AppCompatActivity {
             }
         });
 
-        addItemTextView.setOnClickListener(view -> {
-
-        });
-
-
         startBackgroundThread();
         backgroundHandler.post(() -> {
             assert recyclerView != null;
             List<Item> items = AppDatabase.getInstance(this).itemDao().getAllItems();
-            runOnUiThread(()->setupRecyclerView(recyclerView, items));
+            runOnUiThread(() -> setupRecyclerView(recyclerView, items));
         });
         displayFullBackground(this);
-        //时间选择器
-        TimePickerView pvTime = new TimePickerBuilder(ItemListActivity.this, (date, v) ->
-                Toast.makeText(ItemListActivity.this, date.toString(), Toast.LENGTH_SHORT).show())
-                .setCancelText("取消")
-                .setSubmitText("确定")
-                .build();
+
+
+
         addItemTextView.setOnClickListener(view -> {
-            // TODO: 2019-06-25   pop window show
-//            pvTime.show();
-            startActivity(new Intent(this, AddActivity.class));
+            View id = findViewById(R.id.item_list_layout);
+            if (mMoreWindow == null) {
+                mMoreWindow = new MoreWindow(this);
+                mMoreWindow.init(id);
+            }
+            mMoreWindow.showMoreWindow(id);
         });
     }
 
@@ -175,10 +173,9 @@ public class ItemListActivity extends AppCompatActivity {
 
     }
 
-
-    private void requestStoragePermission() {
-        int hasCameraPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-        int writePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    public static void requestStoragePermission(Activity activity) {
+        int hasCameraPermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int writePermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         Log.e("TAG", "开始" + hasCameraPermission);
         if (hasCameraPermission + writePermission == PackageManager.PERMISSION_GRANTED) {
             // 拥有权限，可以执行涉及到存储权限的操作
@@ -186,7 +183,7 @@ public class ItemListActivity extends AppCompatActivity {
         } else {
             // 没有权限，向用户申请该权限
             Log.e("TAG", "向用户申请该组权限");
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION);
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION);
         }
 
     }
@@ -202,6 +199,24 @@ public class ItemListActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if (v instanceof EditText) {
+                Rect outRect = new Rect();
+                v.getGlobalVisibleRect(outRect);
+                if (!outRect.contains((int) event.getRawX(), (int) event.getRawY())) {
+                    v.setFocusable(false);
+                    v.setFocusableInTouchMode(true);
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event);
+    }
+
     private void displayImage(Uri imageUri) throws IOException {
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
         imageView.setImageBitmap(bitmap);
@@ -211,7 +226,6 @@ public class ItemListActivity extends AppCompatActivity {
     private void setupRecyclerView(@NonNull RecyclerView recyclerView, List<Item> items) {
         recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, items, mTwoPane));
     }
-
 
 
     @Override
@@ -226,6 +240,15 @@ public class ItemListActivity extends AppCompatActivity {
     protected void onPause() {
         stopBackgroundThread();
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mMoreWindow != null) {
+            mMoreWindow.dismiss();
+            mMoreWindow = null;
+        }
+        super.onDestroy();
     }
 
     private void startBackgroundThread() {

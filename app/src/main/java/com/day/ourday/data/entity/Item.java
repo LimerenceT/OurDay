@@ -17,7 +17,7 @@ public class Item implements Serializable {
 
     private String name;
 
-    private Date date;
+    private String date;
 
     private int days;
 
@@ -37,11 +37,11 @@ public class Item implements Serializable {
         this.name = name;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
