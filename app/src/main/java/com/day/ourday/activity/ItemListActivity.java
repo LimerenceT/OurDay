@@ -22,7 +22,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,19 +29,15 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bigkoo.pickerview.builder.TimePickerBuilder;
-import com.bigkoo.pickerview.view.TimePickerView;
 import com.commit451.nativestackblur.NativeStackBlur;
-import com.day.ourday.BitmapUtil;
 import com.day.ourday.MoreWindow;
 import com.day.ourday.R;
 import com.day.ourday.adapter.SimpleItemRecyclerViewAdapter;
 import com.day.ourday.data.AppDatabase;
 import com.day.ourday.data.entity.Item;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -82,6 +77,12 @@ public class ItemListActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         imageBlurView = findViewById(R.id.imageBlurView);
         recyclerView = findViewById(R.id.item_list);
+        recyclerView.addItemDecoration(
+                new HorizontalDividerItemDecoration.Builder(this)
+                        .drawable(R.color.colorDivider)
+                        .sizeResId(R.dimen.divider)
+                        .marginResId(R.dimen.left_margin, R.dimen.right_margin)
+                        .build());
         textViewProgress = findViewById(R.id.textViewProgress);
         addItemTextView = findViewById(R.id.addItem);
         menuTextView = findViewById(R.id.menu);

@@ -15,7 +15,6 @@ import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
@@ -30,7 +29,6 @@ import android.widget.TextView;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.commit451.nativestackblur.NativeStackBlur;
-import com.day.ourday.activity.ItemListActivity;
 import com.day.ourday.data.AppDatabase;
 import com.day.ourday.data.entity.Item;
 
@@ -258,6 +256,7 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener {
     /**
      * 关闭window动画
      */
+    // FIXME: 2019-06-29 能够连续点两次
     private void closeAnimation() {
         mHandler.post(() -> close.animate().rotation(-90).setDuration(400));
 

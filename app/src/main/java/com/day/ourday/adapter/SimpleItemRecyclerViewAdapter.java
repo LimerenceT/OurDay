@@ -63,8 +63,9 @@ public class SimpleItemRecyclerViewAdapter
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(String.valueOf(mValues.get(position).getId()));
-            holder.mContentView.setText(mValues.get(position).getName());
+            holder.mNameView.setText(mValues.get(position).getName());
+            holder.mDateView.setText(mValues.get(position).getDate());
+            holder.mDayView.setText(String.valueOf(mValues.get(position).getDays()));
 
             holder.itemView.setTag(mValues.get(position));
             holder.itemView.setOnClickListener(mOnClickListener);
@@ -76,13 +77,15 @@ public class SimpleItemRecyclerViewAdapter
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            final TextView mIdView;
-            final TextView mContentView;
+            final TextView mNameView;
+            final TextView mDateView;
+            final TextView mDayView;
 
             ViewHolder(View view) {
                 super(view);
-                mIdView = view.findViewById(R.id.id_text);
-                mContentView = view.findViewById(R.id.content);
+                mNameView = view.findViewById(R.id.item_name);
+                mDateView = view.findViewById(R.id.item_date);
+                mDayView = view.findViewById(R.id.item_day);
             }
         }
     }
