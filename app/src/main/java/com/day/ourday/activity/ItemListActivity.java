@@ -83,6 +83,7 @@ public class ItemListActivity extends AppCompatActivity {
                         .sizeResId(R.dimen.divider)
                         .marginResId(R.dimen.left_margin, R.dimen.right_margin)
                         .build());
+
         textViewProgress = findViewById(R.id.textViewProgress);
         addItemTextView = findViewById(R.id.addItem);
         menuTextView = findViewById(R.id.menu);

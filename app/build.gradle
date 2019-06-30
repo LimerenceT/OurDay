@@ -35,7 +35,7 @@ dependencies {
 
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
-
+    implementation 'com.lcodecorex:tkrefreshlayout:1.0.7'
     implementation 'com.contrarywind:Android-PickerView:4.1.8'
     implementation 'com.yqritc:recyclerview-flexibledivider:1.4.0'
     testImplementation 'junit:junit:4.12'
