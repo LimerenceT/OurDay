@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.day.ourday.R;
@@ -49,11 +50,13 @@ public class SimpleItemRecyclerViewAdapter
     public SimpleItemRecyclerViewAdapter(ItemListActivity parent,
                                          List<Item> items,
                                          boolean twoPane) {
-        mValues = items;
         mParentActivity = parent;
         mTwoPane = twoPane;
+        mValues = items;
+
     }
 
+    @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == 0) {
@@ -76,7 +79,7 @@ public class SimpleItemRecyclerViewAdapter
 
             holder.itemView.setTag(mValues.get(position));
             holder.itemView.setOnClickListener(mOnClickListener);
-        } else if (holder instanceof HeaderViewHolder){
+        } else if (holder instanceof HeaderViewHolder) {
             ((HeaderViewHolder) holder).textView.setText("哈哈哈哈哈哈哈哈哈哈");
 //            ((HeaderViewHolder) holder).textView.setBackgroundColor(Color.TRANSPARENT);
         }
@@ -89,7 +92,7 @@ public class SimpleItemRecyclerViewAdapter
     }
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
-        public final TextView mNameView;
+        final TextView mNameView;
         final TextView mDateView;
         final TextView mDayView;
 
@@ -117,4 +120,18 @@ public class SimpleItemRecyclerViewAdapter
             return 0;
         } else return 1;
     }
+
+
+    public void addData(Item item, int position) {
+        mValues.add(position, item);
+        notifyItemInserted(position);
+        notifyItemRangeChanged(position, getItemCount() - position);
+    }
+
+    public void removeData(int position) {
+        mValues.remove(position);
+        notifyItemRemoved(position);
+
+    }
+
 }

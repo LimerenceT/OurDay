@@ -25,6 +25,7 @@ import android.widget.TextView;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.commit451.nativestackblur.NativeStackBlur;
+import com.day.ourday.adapter.SimpleItemRecyclerViewAdapter;
 import com.day.ourday.data.AppDatabase;
 import com.day.ourday.data.entity.Item;
 
@@ -48,9 +49,11 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener {
     private int statusBarHeight;
     private Handler mHandler = new Handler();
     private AppDatabase db;
+    private SimpleItemRecyclerViewAdapter recyclerViewAdapter;
 
-    public MoreWindow(Activity context) {
+    public MoreWindow(Activity context, SimpleItemRecyclerViewAdapter recyclerViewAdapter) {
         mContext = context;
+        this.recyclerViewAdapter = recyclerViewAdapter;
     }
 
     /**
@@ -70,7 +73,6 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener {
         mHeight = metrics.heightPixels;
         setWidth(mWidth);
         setHeight(mHeight);
-
         layout = (LinearLayout) LayoutInflater.from(mContext).inflate(R.layout.window_item_message, null);
 
         setContentView(layout);
@@ -150,6 +152,7 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener {
             protected Void doInBackground(Item... params) {
                 Item item = params[0];
                 db.itemDao().insert(item);
+                mContext.runOnUiThread(() -> recyclerViewAdapter.addData(item, 1));
                 return null;
             }
 

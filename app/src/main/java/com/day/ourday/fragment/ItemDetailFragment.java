@@ -22,12 +22,12 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
  * on handsets.
  */
 public class ItemDetailFragment extends Fragment {
+
     /**
      * The fragment argument representing the Item ID that this fragment
      * represents.
      */
     public static final String ARG_ITEM_ID = "item_id";
-
     /**
      * The dummy content this fragment is presenting.
      */
@@ -51,7 +51,7 @@ public class ItemDetailFragment extends Fragment {
             mItem = (Item) getArguments().getSerializable(ARG_ITEM_ID);
 
             Activity activity = this.getActivity();
-            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
+            CollapsingToolbarLayout appBarLayout = activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
                 appBarLayout.setTitle(mItem.getName());
             }

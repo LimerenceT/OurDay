@@ -51,6 +51,7 @@ import java.util.List;
  */
 public class ItemListActivity extends AppCompatActivity {
 
+
     private static final int STORAGE_PERMISSION = 0x20;
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -67,6 +68,7 @@ public class ItemListActivity extends AppCompatActivity {
     private HandlerThread queryThread;
     private Handler backgroundHandler;
     private MoreWindow mMoreWindow;
+    private SimpleItemRecyclerViewAdapter recyclerViewAdapter;
 
 
     @Override
@@ -83,7 +85,6 @@ public class ItemListActivity extends AppCompatActivity {
                         .sizeResId(R.dimen.divider)
                         .marginResId(R.dimen.left_margin, R.dimen.right_margin)
                         .build());
-
         textViewProgress = findViewById(R.id.textViewProgress);
         addItemTextView = findViewById(R.id.addItem);
         menuTextView = findViewById(R.id.menu);
@@ -147,7 +148,7 @@ public class ItemListActivity extends AppCompatActivity {
         addItemTextView.setOnClickListener(view -> {
             View id = findViewById(R.id.item_list_layout);
             if (mMoreWindow == null) {
-                mMoreWindow = new MoreWindow(this);
+                mMoreWindow = new MoreWindow(this, recyclerViewAdapter);
                 mMoreWindow.init(id);
             }
             mMoreWindow.showMoreWindow(id);
@@ -226,7 +227,8 @@ public class ItemListActivity extends AppCompatActivity {
 
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView, List<Item> items) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, items, mTwoPane));
+        recyclerViewAdapter = new SimpleItemRecyclerViewAdapter(this, items, mTwoPane);
+        recyclerView.setAdapter(recyclerViewAdapter);
     }
 
 
