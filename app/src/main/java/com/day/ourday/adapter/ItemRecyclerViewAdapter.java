@@ -14,17 +14,27 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.day.ourday.R;
 import com.day.ourday.activity.ItemDetailActivity;
 import com.day.ourday.activity.ItemListActivity;
-import com.day.ourday.data.entity.Item;
+import com.day.ourday.mvp.data.entity.Item;
 import com.day.ourday.fragment.ItemDetailFragment;
 
 import java.util.List;
 
-public class SimpleItemRecyclerViewAdapter
+public class ItemRecyclerViewAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final ItemListActivity mParentActivity;
     private final List<Item> mValues;
     private final boolean mTwoPane;
+
+    public ItemRecyclerViewAdapter(ItemListActivity parent,
+                                   List<Item> items,
+                                   boolean twoPane) {
+        mParentActivity = parent;
+        mTwoPane = twoPane;
+        mValues = items;
+
+    }
+
     private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -47,14 +57,6 @@ public class SimpleItemRecyclerViewAdapter
         }
     };
 
-    public SimpleItemRecyclerViewAdapter(ItemListActivity parent,
-                                         List<Item> items,
-                                         boolean twoPane) {
-        mParentActivity = parent;
-        mTwoPane = twoPane;
-        mValues = items;
-
-    }
 
     @NonNull
     @Override
@@ -80,8 +82,7 @@ public class SimpleItemRecyclerViewAdapter
             holder.itemView.setTag(mValues.get(position));
             holder.itemView.setOnClickListener(mOnClickListener);
         } else if (holder instanceof HeaderViewHolder) {
-            ((HeaderViewHolder) holder).textView.setText("哈哈哈哈哈哈哈哈哈哈");
-//            ((HeaderViewHolder) holder).textView.setBackgroundColor(Color.TRANSPARENT);
+            ((HeaderViewHolder) holder).textView.setText(String.valueOf(mValues.get(position).getDays()));
         }
 
     }
@@ -110,7 +111,7 @@ public class SimpleItemRecyclerViewAdapter
 
         HeaderViewHolder(View view) {
             super(view);
-            textView = view.findViewById(R.id.header);
+            textView = view.findViewById(R.id.header_text);
         }
     }
 
@@ -122,7 +123,11 @@ public class SimpleItemRecyclerViewAdapter
     }
 
 
-    public void addData(Item item, int position) {
+    public void addData(Item item) {
+        int position = 1;
+        if (mValues.isEmpty()) {
+            position = 0;
+        }
         mValues.add(position, item);
         notifyItemInserted(position);
         notifyItemRangeChanged(position, getItemCount() - position);

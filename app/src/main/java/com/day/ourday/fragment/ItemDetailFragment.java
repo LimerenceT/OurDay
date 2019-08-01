@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 import com.day.ourday.R;
 import com.day.ourday.activity.ItemDetailActivity;
 import com.day.ourday.activity.ItemListActivity;
-import com.day.ourday.data.entity.Item;
+import com.day.ourday.mvp.data.entity.Item;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 /**

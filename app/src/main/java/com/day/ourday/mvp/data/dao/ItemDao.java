@@ -1,4 +1,4 @@
-package com.day.ourday.data.dao;
+package com.day.ourday.mvp.data.dao;
 
 
 
@@ -8,7 +8,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.day.ourday.data.entity.Item;
+import com.day.ourday.mvp.data.entity.Item;
 
 import java.util.List;
 

@@ -11,8 +11,6 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -30,45 +28,36 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.commit451.nativestackblur.NativeStackBlur;
-import com.day.ourday.MoreWindow;
 import com.day.ourday.R;
-import com.day.ourday.adapter.SimpleItemRecyclerViewAdapter;
-import com.day.ourday.data.AppDatabase;
-import com.day.ourday.data.entity.Item;
+import com.day.ourday.adapter.ItemRecyclerViewAdapter;
+import com.day.ourday.mvp.data.entity.Item;
+import com.day.ourday.task.QueryItemsTask;
+import com.day.ourday.view.MoreWindow;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import java.io.IOException;
 import java.util.List;
 
-/**
- * An activity representing a list of Items. This activity
- * has different presentations for handset and tablet-size devices. On
- * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link ItemDetailActivity} representing
- * Item details. On tablets, the activity presents the list of items and
- * Item details side-by-side using two vertical panes.
- */
+
 public class ItemListActivity extends AppCompatActivity {
 
-
     private static final int STORAGE_PERMISSION = 0x20;
+    private static final int REQUEST_CODE_GALLERY = 0x10;
+
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
     private boolean mTwoPane;
-    private static final int REQUEST_CODE_GALLERY = 0x10;
     private ImageView imageView;
     private ImageView imageBlurView;
     private TextView addItemTextView;
     private TextView menuTextView;
     private TextView textViewProgress;
     private RecyclerView recyclerView;
-    private HandlerThread queryThread;
-    private Handler backgroundHandler;
     private MoreWindow mMoreWindow;
-    private SimpleItemRecyclerViewAdapter recyclerViewAdapter;
+    private ItemRecyclerViewAdapter recyclerViewAdapter;
 
 
     @Override
@@ -76,6 +65,10 @@ public class ItemListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
         requestStoragePermission(this);
+        // 默认模糊背景图片
+        // TODO: 2019-06-28 处理
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.tang);
+        final Bitmap blurBitmap = NativeStackBlur.process(bitmap, 50);
         imageView = findViewById(R.id.imageView);
         imageBlurView = findViewById(R.id.imageBlurView);
         recyclerView = findViewById(R.id.item_list);
@@ -96,15 +89,9 @@ public class ItemListActivity extends AppCompatActivity {
             mTwoPane = true;
         }
         FloatingActionButton fab = findViewById(R.id.fab);
-        SeekBar seekBar = findViewById(R.id.seekBar);
-
         fab.setOnClickListener(view -> pickPictureFromGallery());
 
-
-        // 默认模糊背景图片
-        // TODO: 2019-06-28 处理
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.tang);
-        final Bitmap blurBitmap = NativeStackBlur.process(bitmap, 50);
+        SeekBar seekBar = findViewById(R.id.seekBar);
         seekBar.setMax(160);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             boolean blur = false;
@@ -135,15 +122,10 @@ public class ItemListActivity extends AppCompatActivity {
             }
         });
 
-        startBackgroundThread();
-        backgroundHandler.post(() -> {
-            assert recyclerView != null;
-            List<Item> items = AppDatabase.getInstance(this).itemDao().getAllItems();
-            runOnUiThread(() -> setupRecyclerView(recyclerView, items));
-        });
+        // query data
+        new QueryItemsTask(items -> setupRecyclerView(recyclerView, items)).execute();
+
         displayFullBackground(this);
-
-
 
         addItemTextView.setOnClickListener(view -> {
             View id = findViewById(R.id.item_list_layout);
@@ -227,23 +209,8 @@ public class ItemListActivity extends AppCompatActivity {
 
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView, List<Item> items) {
-        recyclerViewAdapter = new SimpleItemRecyclerViewAdapter(this, items, mTwoPane);
+        recyclerViewAdapter = new ItemRecyclerViewAdapter(this, items, mTwoPane);
         recyclerView.setAdapter(recyclerViewAdapter);
-    }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (queryThread == null) {
-            startBackgroundThread();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        stopBackgroundThread();
-        super.onPause();
     }
 
     @Override
@@ -253,23 +220,5 @@ public class ItemListActivity extends AppCompatActivity {
             mMoreWindow = null;
         }
         super.onDestroy();
-    }
-
-    private void startBackgroundThread() {
-        queryThread = new HandlerThread("query");
-        queryThread.start();
-        backgroundHandler = new Handler(queryThread.getLooper());
-
-    }
-
-    private void stopBackgroundThread() {
-        queryThread.quitSafely();
-        try {
-            queryThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        queryThread = null;
-        backgroundHandler = null;
     }
 }

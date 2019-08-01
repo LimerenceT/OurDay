@@ -1,10 +1,9 @@
-package com.day.ourday.data.entity;
+package com.day.ourday.mvp.data.entity;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * Create by LimerenceT on 2019-06-24

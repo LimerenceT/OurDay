@@ -1,4 +1,4 @@
-package com.day.ourday.data;
+package com.day.ourday.mvp.data;
 
 import android.content.Context;
 
@@ -6,8 +6,8 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-import com.day.ourday.data.dao.ItemDao;
-import com.day.ourday.data.entity.Item;
+import com.day.ourday.mvp.data.dao.ItemDao;
+import com.day.ourday.mvp.data.entity.Item;
 
 /**
  * Create by LimerenceT on 2019-06-24

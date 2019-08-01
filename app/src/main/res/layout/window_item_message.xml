@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/window_item"
+    android:id="@+id/add_item_window"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -31,7 +31,7 @@
                 android:drawableStart="@drawable/ic_close_circle" />
 
             <TextView
-                android:id="@+id/check"
+                android:id="@+id/confirm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
