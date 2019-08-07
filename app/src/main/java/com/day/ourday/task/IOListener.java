@@ -9,4 +9,6 @@ public interface IOListener<T> {
 
     void onTaskResult(List<T> data);
 
+    void onTaskSuccess();
+
 }

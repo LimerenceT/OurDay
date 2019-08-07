@@ -13,27 +13,29 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.day.ourday.R;
 import com.day.ourday.activity.ItemDetailActivity;
-import com.day.ourday.activity.ItemListActivity;
-import com.day.ourday.mvp.data.entity.Item;
+import com.day.ourday.activity.MainActivity;
+import com.day.ourday.data.entity.Item;
 import com.day.ourday.fragment.ItemDetailFragment;
 
 import java.util.List;
 
-public class ItemRecyclerViewAdapter
+public class ItemListAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final ItemListActivity mParentActivity;
-    private final List<Item> mValues;
+    private final MainActivity mParentActivity;
+    private List<Item> items;
     private final boolean mTwoPane;
 
-    public ItemRecyclerViewAdapter(ItemListActivity parent,
-                                   List<Item> items,
-                                   boolean twoPane) {
+    public ItemListAdapter(MainActivity parent,
+                           boolean twoPane) {
         mParentActivity = parent;
         mTwoPane = twoPane;
-        mValues = items;
-
     }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
+    }
+
 
     private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
@@ -75,21 +77,24 @@ public class ItemRecyclerViewAdapter
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof ItemViewHolder) {
-            ((ItemViewHolder) holder).mNameView.setText(mValues.get(position).getName());
-            ((ItemViewHolder) holder).mDateView.setText(mValues.get(position).getDate());
-            ((ItemViewHolder) holder).mDayView.setText(String.valueOf(mValues.get(position).getDays()));
+            ((ItemViewHolder) holder).mNameView.setText(items.get(position).getName());
+            ((ItemViewHolder) holder).mDateView.setText(items.get(position).getDate());
+            ((ItemViewHolder) holder).mDayView.setText(String.valueOf(items.get(position).getDays()));
 
-            holder.itemView.setTag(mValues.get(position));
+            holder.itemView.setTag(items.get(position));
             holder.itemView.setOnClickListener(mOnClickListener);
         } else if (holder instanceof HeaderViewHolder) {
-            ((HeaderViewHolder) holder).textView.setText(String.valueOf(mValues.get(position).getDays()));
+            ((HeaderViewHolder) holder).textView.setText(String.valueOf(items.get(position).getDays()));
         }
 
     }
 
     @Override
     public int getItemCount() {
-        return mValues.size();
+        if (items != null) {
+            return items.size();
+        }
+        return 0;
     }
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
@@ -125,16 +130,16 @@ public class ItemRecyclerViewAdapter
 
     public void addData(Item item) {
         int position = 1;
-        if (mValues.isEmpty()) {
+        if (items.isEmpty()) {
             position = 0;
         }
-        mValues.add(position, item);
+        items.add(position, item);
         notifyItemInserted(position);
         notifyItemRangeChanged(position, getItemCount() - position);
     }
 
     public void removeData(int position) {
-        mValues.remove(position);
+        items.remove(position);
         notifyItemRemoved(position);
 
     }

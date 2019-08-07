@@ -17,7 +17,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".activity.ItemListActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -29,11 +29,11 @@
         <activity
             android:name=".activity.ItemDetailActivity"
             android:label="@string/title_item_detail"
-            android:parentActivityName=".activity.ItemListActivity"
+            android:parentActivityName=".activity.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.day.ourday.activity.ItemListActivity" />
+                android:value="com.day.ourday.activity.MainActivity" />
         </activity>
     </application>
 

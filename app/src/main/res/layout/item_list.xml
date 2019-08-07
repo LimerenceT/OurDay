@@ -13,7 +13,7 @@
 
             android:overScrollMode="never"
             app:layoutManager="LinearLayoutManager"
-            tools:context=".activity.ItemListActivity"
+            tools:context=".activity.MainActivity"
             tools:listitem="@layout/item_list_content" />
 
 </com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout>

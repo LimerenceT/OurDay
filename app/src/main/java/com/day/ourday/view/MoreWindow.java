@@ -22,18 +22,20 @@ import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.commit451.nativestackblur.NativeStackBlur;
 import com.day.ourday.R;
-import com.day.ourday.adapter.ItemRecyclerViewAdapter;
-import com.day.ourday.mvp.data.entity.Item;
-import com.day.ourday.task.AddItemTask;
-import com.day.ourday.util.DateUtil;
+import com.day.ourday.adapter.ItemListAdapter;
+import com.day.ourday.mvp.ItemContact;
+import com.day.ourday.data.entity.Item;
+import com.day.ourday.mvp.presenter.ItemPresenter;
+import com.day.ourday.util.DateUtils;
 
 import java.util.Date;
+import java.util.List;
 
 
 /**
  * Create by LimerenceT on 2019-06-27
  */
-public class MoreWindow extends PopupWindow implements View.OnClickListener {
+public class MoreWindow extends PopupWindow implements View.OnClickListener, ItemContact.UpdateListener {
     private Activity mContext;
     private LinearLayout layout;
     private EditText editText;
@@ -41,15 +43,16 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener {
     private TextView cancel;
     private TextView confirm;
     private View bgView;
-    private int mWidth;
-    private int mHeight;
     private View view;
     private TimePickerView timePicker;
-    private ItemRecyclerViewAdapter recyclerViewAdapter;
+    private ItemListAdapter recyclerViewAdapter;
+    private ItemPresenter itemPresenter;
 
-    public MoreWindow(Activity context, ItemRecyclerViewAdapter recyclerViewAdapter) {
+
+    public MoreWindow(Activity context, ItemListAdapter recyclerViewAdapter) {
         mContext = context;
         this.recyclerViewAdapter = recyclerViewAdapter;
+        itemPresenter = new ItemPresenter();
     }
 
     /**
@@ -59,9 +62,12 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener {
      */
     public void init(View view) {
         this.view = view;
-        windowInit();
+        initWindow();
+        initView();
+        setListener();
+    }
 
-
+    private void initView() {
         cancel = layout.findViewById(R.id.cancel);
         dateView = layout.findViewById(R.id.date);
         confirm = layout.findViewById(R.id.confirm);
@@ -69,26 +75,13 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener {
         bgView = layout.findViewById(R.id.add_item_window);
         //时间选择器
         timePicker = new TimePickerBuilder(mContext, (date, v) ->
-                dateView.setText(DateUtil.format(date)))
+                dateView.setText(DateUtils.format(date)))
                 .setCancelText(mContext.getString(R.string.add_item_window_cancel_text))
                 .setOutSideCancelable(true)
                 .setSubmitText(mContext.getString(R.string.add_item_window_confirm_text))
                 .isDialog(true)
                 .build();
         timePickerSetting();
-
-        setListener();
-
-        bgView.setOnTouchListener((v, event) -> {
-            v.setFocusable(true);
-            v.setFocusableInTouchMode(true);
-            v.requestFocus();
-            InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Activity.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-            v.performClick();
-            return false;
-        });
-
     }
 
     /**
@@ -108,17 +101,26 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener {
         confirm.setOnClickListener(this);
         cancel.setOnClickListener(this);
         dateView.setOnClickListener(this);
+        bgView.setOnTouchListener((v, event) -> {
+            v.setFocusable(true);
+            v.setFocusableInTouchMode(true);
+            v.requestFocus();
+            InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            v.performClick();
+            return false;
+        });
     }
 
-    private void windowInit() {
+    private void initWindow() {
         Rect frame = new Rect();
         mContext.getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);
 
         DisplayMetrics metrics = new DisplayMetrics();
         mContext.getWindowManager().getDefaultDisplay()
                 .getMetrics(metrics);
-        mWidth = metrics.widthPixels;
-        mHeight = metrics.heightPixels;
+        int mWidth = metrics.widthPixels;
+        int mHeight = metrics.heightPixels;
         setWidth(mWidth);
         setHeight(mHeight);
 
@@ -144,15 +146,6 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener {
         dialogWindow.setWindowAnimations(com.bigkoo.pickerview.R.style.picker_view_slide_anim);
     }
 
-    private void addItem(Item item) {
-        recyclerViewAdapter.addData(item);
-        new AddItemTask().execute(item);
-        if (isShowing()) {
-            closeAnimation();
-        }
-    }
-
-
     /**
      * 显示window动画
      *
@@ -167,7 +160,7 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener {
 
     private void initData() {
         editText.setText(R.string.add_item_window_name_default_text);
-        dateView.setText(DateUtil.format(new Date()));
+        dateView.setText(DateUtils.format(new Date()));
     }
 
     /**
@@ -185,7 +178,10 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener {
                 item.setName(editText.getText().toString());
                 item.setDate(dateView.getText().toString());
                 item.setDays(3);
-                addItem(item);
+                itemPresenter.addItem(item, this);
+                if (isShowing()) {
+                    closeAnimation();
+                }
                 break;
             case R.id.cancel:
                 if (isShowing()) {
@@ -202,4 +198,8 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener {
         }
     }
 
+    @Override
+    public void notifyUpdate(List<Item> items) {
+        recyclerViewAdapter.addData(items.get(0));
+    }
 }

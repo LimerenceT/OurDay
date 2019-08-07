@@ -4,8 +4,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.day.ourday.OurDayApplication;
-import com.day.ourday.mvp.data.AppDatabase;
-import com.day.ourday.mvp.data.entity.Item;
+import com.day.ourday.data.AppDatabase;
+import com.day.ourday.data.entity.Item;
 
 import java.util.List;
 
@@ -18,6 +18,7 @@ public class QueryItemsTask extends AsyncTask<Void, Void, List<Item>> {
     public QueryItemsTask(IOListener<Item> listener) {
         ioListener = listener;
     }
+
 
     @Override
     protected List<Item> doInBackground(Void... voids) {

@@ -11,13 +11,13 @@ import androidx.fragment.app.Fragment;
 
 import com.day.ourday.R;
 import com.day.ourday.activity.ItemDetailActivity;
-import com.day.ourday.activity.ItemListActivity;
-import com.day.ourday.mvp.data.entity.Item;
+import com.day.ourday.activity.MainActivity;
+import com.day.ourday.data.entity.Item;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 /**
  * A fragment representing a single Item detail screen.
- * This fragment is either contained in a {@link ItemListActivity}
+ * This fragment is either contained in a {@link MainActivity}
  * in two-pane mode (on tablets) or a {@link ItemDetailActivity}
  * on handsets.
  */
