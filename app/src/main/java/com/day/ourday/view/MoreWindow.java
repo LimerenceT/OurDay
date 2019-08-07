@@ -22,9 +22,10 @@ import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.commit451.nativestackblur.NativeStackBlur;
 import com.day.ourday.R;
+import com.day.ourday.activity.MainActivity;
 import com.day.ourday.adapter.ItemListAdapter;
-import com.day.ourday.mvp.ItemContact;
 import com.day.ourday.data.entity.Item;
+import com.day.ourday.mvp.ItemContact;
 import com.day.ourday.mvp.presenter.ItemPresenter;
 import com.day.ourday.util.DateUtils;
 
@@ -36,7 +37,7 @@ import java.util.List;
  * Create by LimerenceT on 2019-06-27
  */
 public class MoreWindow extends PopupWindow implements View.OnClickListener, ItemContact.UpdateListener {
-    private Activity mContext;
+    private MainActivity mContext;
     private LinearLayout layout;
     private EditText editText;
     private TextView dateView;
@@ -49,7 +50,7 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener, Ite
     private ItemPresenter itemPresenter;
 
 
-    public MoreWindow(Activity context, ItemListAdapter recyclerViewAdapter) {
+    public MoreWindow(MainActivity context, ItemListAdapter recyclerViewAdapter) {
         mContext = context;
         this.recyclerViewAdapter = recyclerViewAdapter;
         itemPresenter = new ItemPresenter();
@@ -69,7 +70,7 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener, Ite
 
     private void initView() {
         cancel = layout.findViewById(R.id.cancel);
-        dateView = layout.findViewById(R.id.date);
+        dateView = layout.findViewById(R.id.window_date);
         confirm = layout.findViewById(R.id.confirm);
         editText = layout.findViewById(R.id.edit_view);
         bgView = layout.findViewById(R.id.add_item_window);
@@ -129,7 +130,7 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener, Ite
         //使popupwindow全屏显示
         setClippingEnabled(false);
 
-        layout = (LinearLayout) LayoutInflater.from(mContext).inflate(R.layout.window_item_message, null);
+        layout = (LinearLayout) LayoutInflater.from(mContext).inflate(R.layout.more_window, null);
         setContentView(layout);
     }
 
@@ -175,9 +176,10 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener, Ite
         switch (view.getId()) {
             case R.id.confirm:
                 Item item = new Item();
+                String date = dateView.getText().toString();
                 item.setName(editText.getText().toString());
-                item.setDate(dateView.getText().toString());
-                item.setDays(3);
+                item.setDate(date);
+                item.setDays(DateUtils.getDays(date));
                 itemPresenter.addItem(item, this);
                 if (isShowing()) {
                     closeAnimation();
@@ -188,7 +190,7 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener, Ite
                     closeAnimation();
                 }
                 break;
-            case R.id.date:
+            case R.id.window_date:
                 dateView.setOnClickListener(v -> {
                     timePicker.show();
                     view.setFocusable(true);
@@ -200,6 +202,24 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener, Ite
 
     @Override
     public void notifyUpdate(List<Item> items) {
-        recyclerViewAdapter.addData(items.get(0));
+        Item item = items.get(0);
+        recyclerViewAdapter.addData(item);
+        mContext.recyclerView.smoothScrollToPosition(0);
+        TextView headerText = view.findViewById(R.id.header_text);
+        TextView headerDayName = view.findViewById(R.id.header_day_name);
+        TextView date = view.findViewById(R.id.header_date);
+
+        headerDayName.setText(item.getName());
+        date.setText(item.getDate());
+        TextView headAfterOrBefore = view.findViewById(R.id.header_after_or_before);
+        int days = item.getDays();
+        if (days>0) {
+            headAfterOrBefore.setText("天后");
+        } else if (days< 0){
+            headAfterOrBefore.setText("天前");
+        } else {
+            headAfterOrBefore.setText("今天");
+        }
+        headerText.setText(String.valueOf(Math.abs(days)));
     }
 }

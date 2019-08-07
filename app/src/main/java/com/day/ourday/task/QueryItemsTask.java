@@ -13,6 +13,7 @@ import java.util.List;
  * Created by LimerenceT on 19-8-1
  */
 public class QueryItemsTask extends AsyncTask<Void, Void, List<Item>> {
+    private static final String TAG = "QueryItemsTask";
     private IOListener<Item> ioListener;
 
     public QueryItemsTask(IOListener<Item> listener) {
@@ -22,9 +23,10 @@ public class QueryItemsTask extends AsyncTask<Void, Void, List<Item>> {
 
     @Override
     protected List<Item> doInBackground(Void... voids) {
-        Log.d("QueryTask", Thread.currentThread().getName());
         AppDatabase db = AppDatabase.getInstance(OurDayApplication.getInstance());
-        return db.itemDao().getAllItems();
+        List<Item> items = db.itemDao().getAllItems();
+        Log.d(TAG, "doInBackground: "+items.size());
+        return items;
     }
 
     @Override

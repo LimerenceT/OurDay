@@ -49,13 +49,12 @@ public class MainActivity extends AppCompatActivity implements ItemContact.Updat
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
-    private boolean mTwoPane;
     private ImageView imageView;
     private ImageView imageBlurView;
     private TextView addItemTextView;
     private TextView menuTextView;
     private TextView textViewProgress;
-    private RecyclerView recyclerView;
+    public RecyclerView recyclerView;
     private MoreWindow mMoreWindow;
     private ItemListAdapter recyclerViewAdapter;
     private Bitmap blurBitmap;
@@ -65,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements ItemContact.Updat
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate() called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         requestStoragePermission(this);
@@ -130,13 +130,6 @@ public class MainActivity extends AppCompatActivity implements ItemContact.Updat
     }
 
     private void initView() {
-        if (findViewById(R.id.item_detail_container) != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-w900dp).
-            // If this view is present, then the
-            // activity should be in two-pane mode.
-            mTwoPane = true;
-        }
         imageView = findViewById(R.id.imageView);
         imageBlurView = findViewById(R.id.imageBlurView);
         recyclerView = findViewById(R.id.item_list);
@@ -152,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements ItemContact.Updat
         fab = findViewById(R.id.fab);
         seekBar = findViewById(R.id.seekBar);
         seekBar.setMax(160);
-        recyclerViewAdapter = new ItemListAdapter(this, mTwoPane);
+        recyclerViewAdapter = new ItemListAdapter();
         recyclerView.setAdapter(recyclerViewAdapter);
         displayFullBackground(this);
     }
@@ -231,6 +224,29 @@ public class MainActivity extends AppCompatActivity implements ItemContact.Updat
     private void setupItemListAdapterData(List<Item> items) {
         recyclerViewAdapter.setItems(items);
         recyclerViewAdapter.notifyDataSetChanged();
+        if (items.size() > 0) {
+            updateHeader(items.get(0));
+        }
+
+    }
+
+    private void updateHeader(Item item) {
+        TextView headAfterOrBefore = findViewById(R.id.header_after_or_before);
+        TextView headerText = findViewById(R.id.header_text);
+        TextView headerDayName = findViewById(R.id.header_day_name);
+        TextView date = findViewById(R.id.header_date);
+        headerDayName.setText(item.getName());
+        date.setText(item.getDate());
+
+        int days = item.getDays();
+        if (days>0) {
+            headAfterOrBefore.setText("天后");
+        } else if (days< 0){
+            headAfterOrBefore.setText("天前");
+        } else {
+            headAfterOrBefore.setText("今天");
+        }
+        headerText.setText(String.valueOf(Math.abs(days)));
     }
 
     @Override
@@ -243,4 +259,5 @@ public class MainActivity extends AppCompatActivity implements ItemContact.Updat
     public void notifyUpdate(List<Item> items) {
         setupItemListAdapterData(items);
     }
+
 }
