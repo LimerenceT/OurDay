@@ -1,10 +1,10 @@
 package com.day.ourday.task;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.day.ourday.OurDayApplication;
-import com.day.ourday.data.AppDatabase;
+import androidx.lifecycle.LiveData;
+
+import com.day.ourday.data.dao.ItemDao;
 import com.day.ourday.data.entity.Item;
 
 import java.util.List;
@@ -12,32 +12,17 @@ import java.util.List;
 /**
  * Created by LimerenceT on 19-8-1
  */
-public class QueryItemsTask extends AsyncTask<Void, Void, List<Item>> {
+public class QueryItemsTask extends AsyncTask<Void, Void, LiveData<List<Item>>> {
     private static final String TAG = "QueryItemsTask";
-    private IOListener<Item> ioListener;
+    private ItemDao itemDao;
 
-    public QueryItemsTask(IOListener<Item> listener) {
-        ioListener = listener;
-    }
-
-
-    @Override
-    protected List<Item> doInBackground(Void... voids) {
-        AppDatabase db = AppDatabase.getInstance(OurDayApplication.getInstance());
-        List<Item> items = db.itemDao().getAllItems();
-        Log.d(TAG, "doInBackground: "+items.size());
-        return items;
+    public QueryItemsTask(ItemDao itemDao) {
+        this.itemDao = itemDao;
     }
 
     @Override
-    protected void onPostExecute(List<Item> data) {
-        if (ioListener != null) {
-            ioListener.onTaskResult(data);
-        }
+    protected LiveData<List<Item>> doInBackground(Void... voids) {
+        return itemDao.getAllItems();
     }
 
-    @Override
-    protected void onCancelled() {
-        ioListener = null;
-    }
 }

@@ -6,20 +6,18 @@ import com.day.ourday.data.dao.ItemDao;
 import com.day.ourday.data.entity.Item;
 
 /**
- * Created by LimerenceT on 19-8-1
+ * Created by long.qiu on 19-8-23
  */
-public class AddItemTask extends AsyncTask<Item, Void, Void> {
+public class DeleteAsyncTask extends AsyncTask<Item, Void, Void> {
     private ItemDao itemDao;
 
-    public AddItemTask(ItemDao itemDao) {
+    public DeleteAsyncTask(ItemDao itemDao) {
         this.itemDao = itemDao;
     }
 
     @Override
-    protected Void doInBackground(Item... params) {
-        Item item = params[0];
-        itemDao.insert(item);
+    protected Void doInBackground(Item... items) {
+        itemDao.delete(items[0]);
         return null;
     }
-
 }

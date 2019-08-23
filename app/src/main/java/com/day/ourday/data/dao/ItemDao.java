@@ -2,6 +2,7 @@ package com.day.ourday.data.dao;
 
 
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -18,11 +19,11 @@ import java.util.List;
  */
 @Dao
 public interface ItemDao {
-    @Query("select * from item")
-    List<Item> getAllItems();
+    @Query("select * from item order by id desc")
+    LiveData<List<Item>> getAllItems();
 
     @Query("select * from item where id=:id")
-    Item getItem(int id);
+    LiveData<Item> getItem(int id);
 
     @Insert
     void insert(Item item);

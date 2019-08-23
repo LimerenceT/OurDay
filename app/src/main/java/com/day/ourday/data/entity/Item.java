@@ -1,6 +1,7 @@
 package com.day.ourday.data.entity;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
@@ -10,6 +11,14 @@ import java.io.Serializable;
  */
 @Entity
 public class Item implements Serializable {
+    public Item() {
+    }
+
+    @Ignore
+    public Item(String name, String date) {
+        this.name = name;
+        this.date = date;
+    }
 
     @PrimaryKey(autoGenerate = true)
     private int id;

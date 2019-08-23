@@ -18,25 +18,24 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.lifecycle.ViewModelProviders;
+
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.commit451.nativestackblur.NativeStackBlur;
 import com.day.ourday.R;
+import com.day.ourday.ViewModel.ItemViewModel;
 import com.day.ourday.activity.MainActivity;
-import com.day.ourday.adapter.ItemListAdapter;
 import com.day.ourday.data.entity.Item;
-import com.day.ourday.mvp.ItemContact;
-import com.day.ourday.mvp.presenter.ItemPresenter;
 import com.day.ourday.util.DateUtils;
 
 import java.util.Date;
-import java.util.List;
 
 
 /**
  * Create by LimerenceT on 2019-06-27
  */
-public class MoreWindow extends PopupWindow implements View.OnClickListener, ItemContact.UpdateListener {
+public class MoreWindow extends PopupWindow implements View.OnClickListener {
     private MainActivity mContext;
     private LinearLayout layout;
     private EditText editText;
@@ -46,14 +45,12 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener, Ite
     private View bgView;
     private View view;
     private TimePickerView timePicker;
-    private ItemListAdapter recyclerViewAdapter;
-    private ItemPresenter itemPresenter;
+    private ItemViewModel itemViewModel;
 
 
-    public MoreWindow(MainActivity context, ItemListAdapter recyclerViewAdapter) {
+    public MoreWindow(MainActivity context) {
         mContext = context;
-        this.recyclerViewAdapter = recyclerViewAdapter;
-        itemPresenter = new ItemPresenter();
+        itemViewModel = ViewModelProviders.of(context).get(ItemViewModel.class);
     }
 
     /**
@@ -179,8 +176,7 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener, Ite
                 String date = dateView.getText().toString();
                 item.setName(editText.getText().toString());
                 item.setDate(date);
-                item.setDays(DateUtils.getDays(date));
-                itemPresenter.addItem(item, this);
+                itemViewModel.insert(item);
                 if (isShowing()) {
                     closeAnimation();
                 }
@@ -198,28 +194,5 @@ public class MoreWindow extends PopupWindow implements View.OnClickListener, Ite
                     v.requestFocus();
                 });
         }
-    }
-
-    @Override
-    public void notifyUpdate(List<Item> items) {
-        Item item = items.get(0);
-        recyclerViewAdapter.addData(item);
-        mContext.recyclerView.smoothScrollToPosition(0);
-        TextView headerText = view.findViewById(R.id.header_text);
-        TextView headerDayName = view.findViewById(R.id.header_day_name);
-        TextView date = view.findViewById(R.id.header_date);
-
-        headerDayName.setText(item.getName());
-        date.setText(item.getDate());
-        TextView headAfterOrBefore = view.findViewById(R.id.header_after_or_before);
-        int days = item.getDays();
-        if (days>0) {
-            headAfterOrBefore.setText("天后");
-        } else if (days< 0){
-            headAfterOrBefore.setText("天前");
-        } else {
-            headAfterOrBefore.setText("今天");
-        }
-        headerText.setText(String.valueOf(Math.abs(days)));
     }
 }

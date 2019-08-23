@@ -20,27 +20,29 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.commit451.nativestackblur.NativeStackBlur;
 import com.day.ourday.R;
+import com.day.ourday.ViewModel.ItemViewModel;
 import com.day.ourday.adapter.ItemListAdapter;
 import com.day.ourday.data.entity.Item;
-import com.day.ourday.mvp.ItemContact;
-import com.day.ourday.mvp.presenter.ItemPresenter;
+import com.day.ourday.util.DateUtils;
 import com.day.ourday.view.MoreWindow;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import java.io.IOException;
-import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements ItemContact.UpdateListener {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int STORAGE_PERMISSION = 0x20;
     private static final int REQUEST_CODE_GALLERY = 0x10;
@@ -53,18 +55,15 @@ public class MainActivity extends AppCompatActivity implements ItemContact.Updat
     private ImageView imageBlurView;
     private TextView addItemTextView;
     private TextView menuTextView;
-    private TextView textViewProgress;
-    public RecyclerView recyclerView;
+    private RecyclerView recyclerView;
     private MoreWindow mMoreWindow;
     private ItemListAdapter recyclerViewAdapter;
     private Bitmap blurBitmap;
-    private FloatingActionButton fab;
     private SeekBar seekBar;
-    private ItemPresenter itemPresenter;
+    private ItemViewModel itemViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate() called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         requestStoragePermission(this);
@@ -75,12 +74,31 @@ public class MainActivity extends AppCompatActivity implements ItemContact.Updat
     }
 
     private void initData() {
-        itemPresenter = new ItemPresenter();
-        itemPresenter.getAllItems(this);
+        recyclerViewAdapter = new ItemListAdapter();
+        recyclerView.setAdapter(recyclerViewAdapter);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+        itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
+        itemViewModel.getItems().observe(this, items -> {
+            recyclerViewAdapter.updateItems(items);
+            updateHeader(items.get(0));
+        });
+
     }
+    private ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            Item item = (Item) viewHolder.itemView.getTag();
+            itemViewModel.delete(item);
+            Toast.makeText(MainActivity.this, "删除成功", Toast.LENGTH_SHORT).show();
+        }
+    });
 
     private void setListener() {
-        fab.setOnClickListener(view -> pickPictureFromGallery());
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             boolean blur = false;
@@ -88,7 +106,6 @@ public class MainActivity extends AppCompatActivity implements ItemContact.Updat
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 imageBlurView.setVisibility(View.VISIBLE);
-                textViewProgress.setText(String.valueOf(i));
                 imageBlurView.getBackground().setAlpha(i);
                 if (i > 150 && !blur) {
                     imageView.setImageBitmap(blurBitmap);
@@ -115,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements ItemContact.Updat
         addItemTextView.setOnClickListener(view -> {
             View id = findViewById(R.id.item_list_layout);
             if (mMoreWindow == null) {
-                mMoreWindow = new MoreWindow(this, recyclerViewAdapter);
+                mMoreWindow = new MoreWindow(this);
                 mMoreWindow.init(id);
             }
             mMoreWindow.showMoreWindow(id);
@@ -139,14 +156,10 @@ public class MainActivity extends AppCompatActivity implements ItemContact.Updat
                         .sizeResId(R.dimen.divider)
                         .marginResId(R.dimen.left_margin, R.dimen.right_margin)
                         .build());
-        textViewProgress = findViewById(R.id.textViewProgress);
         addItemTextView = findViewById(R.id.addItem);
         menuTextView = findViewById(R.id.menu);
-        fab = findViewById(R.id.fab);
         seekBar = findViewById(R.id.seekBar);
         seekBar.setMax(160);
-        recyclerViewAdapter = new ItemListAdapter();
-        recyclerView.setAdapter(recyclerViewAdapter);
         displayFullBackground(this);
     }
 
@@ -219,17 +232,6 @@ public class MainActivity extends AppCompatActivity implements ItemContact.Updat
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
         imageView.setImageBitmap(bitmap);
     }
-
-
-    private void setupItemListAdapterData(List<Item> items) {
-        recyclerViewAdapter.setItems(items);
-        recyclerViewAdapter.notifyDataSetChanged();
-        if (items.size() > 0) {
-            updateHeader(items.get(0));
-        }
-
-    }
-
     private void updateHeader(Item item) {
         TextView headAfterOrBefore = findViewById(R.id.header_after_or_before);
         TextView headerText = findViewById(R.id.header_text);
@@ -238,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements ItemContact.Updat
         headerDayName.setText(item.getName());
         date.setText(item.getDate());
 
-        int days = item.getDays();
+        int days = DateUtils.getDays(item.getDate());
         if (days>0) {
             headAfterOrBefore.setText("天后");
         } else if (days< 0){
@@ -255,9 +257,6 @@ public class MainActivity extends AppCompatActivity implements ItemContact.Updat
         super.onDestroy();
     }
 
-    @Override
-    public void notifyUpdate(List<Item> items) {
-        setupItemListAdapterData(items);
-    }
+
 
 }
