@@ -1,9 +1,7 @@
 package com.day.ourday.fragment;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +33,7 @@ public class MainFragment extends Fragment {
     private ImageView imageView;
     private ImageView imageBlurView;
     private TextView addItemTextView;
-    private TextView menuTextView;
+    private TextView settingTextView;
     private RecyclerView recyclerView;
     private ItemListAdapter recyclerViewAdapter;
     private Bitmap blurBitmap;
@@ -47,10 +45,10 @@ public class MainFragment extends Fragment {
         // Required empty public constructor
     }
 
+
     public static MainFragment newInstance() {
         return new MainFragment();
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -71,10 +69,15 @@ public class MainFragment extends Fragment {
         itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
         itemViewModel.getItems().observe(this, items -> {
             recyclerViewAdapter.updateItems(items);
-            updateHeader(items.get(0));
+            if (!items.isEmpty()) {
+                updateHeader(items.get(0));
+            } else {
+                clearHeader();
+            }
         });
-
     }
+
+
     private void setListener() {
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -105,35 +108,23 @@ public class MainFragment extends Fragment {
             }
         });
 
-        addItemTextView.setOnClickListener(view -> {
-            ItemFragment itemFragment = ItemFragment.newInstance();
-            Bundle bundle = new Bundle();
-            bundle.putParcelable("bitmap", screenShot());
-            itemFragment.setArguments(bundle);
-            getFragmentManager().beginTransaction()
-                    .addToBackStack(null)
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-//                    .setCustomAnimations(R.anim.pop_enter_anim, R.anim.pop_exit_anim, R.anim.pop_enter_anim, R.anim.pop_exit_anim)
-                    .add(R.id.item_list_layout, itemFragment)
-                    .commit();
-        });
-    }
+        addItemTextView.setOnClickListener(view -> getFragmentManager().beginTransaction()
+                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .add(R.id.fragment_container, ItemFragment.newInstance(), "ItemFragment")
+                .commit()
+        );
 
-    /**
-     * 每次都截图模糊
-     */
-    private Bitmap screenShot() {
-        view.setDrawingCacheEnabled(true);
-        view.destroyDrawingCache();
-        view.buildDrawingCache();
-        Bitmap bmp = view.getDrawingCache();
-        Bitmap bitmap = NativeStackBlur.process(bmp, 35);
-        return Bitmap.createScaledBitmap(bitmap, 120, 180, true);
+        settingTextView.setOnClickListener(view -> getFragmentManager().beginTransaction()
+                .addToBackStack(null)
+                .hide(this)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .add(R.id.fragment_container, SettingFragment.newInstance(), "SettingFragment")
+                .commit()
+        );
     }
 
     private void blurImage() {
-        // 默认模糊背景图片
-        // TODO: 2019-06-28 处理
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.tang);
         blurBitmap = NativeStackBlur.process(bitmap, 50);
     }
@@ -149,23 +140,10 @@ public class MainFragment extends Fragment {
                         .marginResId(R.dimen.left_margin, R.dimen.right_margin)
                         .build());
         addItemTextView = view.findViewById(R.id.addItem);
-        menuTextView = view.findViewById(R.id.menu);
+        settingTextView = view.findViewById(R.id.setting);
         seekBar = view.findViewById(R.id.seekBar);
         seekBar.setMax(160);
-        displayFullBackground(getActivity());
     }
-
-    /**
-     * 设置背景图全屏显示
-     */
-    public static void displayFullBackground(Activity activity) {
-        View decorView = activity.getWindow().getDecorView();
-        int option = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-        decorView.setSystemUiVisibility(option);
-        activity.getWindow().setStatusBarColor(Color.TRANSPARENT);
-    }
-
 
     private void updateHeader(Item item) {
         TextView headAfterOrBefore = view.findViewById(R.id.header_after_or_before);
@@ -176,14 +154,25 @@ public class MainFragment extends Fragment {
         date.setText(item.getDate());
 
         int days = DateUtils.getDays(item.getDate());
-        if (days>0) {
+        if (days > 0) {
             headAfterOrBefore.setText("天后");
-        } else if (days< 0){
+        } else if (days < 0) {
             headAfterOrBefore.setText("天前");
         } else {
             headAfterOrBefore.setText("今天");
         }
         headerText.setText(String.valueOf(Math.abs(days)));
+    }
+
+    private void clearHeader() {
+        TextView headAfterOrBefore = view.findViewById(R.id.header_after_or_before);
+        TextView headerText = view.findViewById(R.id.header_text);
+        TextView headerDayName = view.findViewById(R.id.header_day_name);
+        TextView date = view.findViewById(R.id.header_date);
+        headerDayName.setText("某天");
+        date.setText("2019.08.07");
+        headAfterOrBefore.setText("天前");
+        headerText.setText(String.valueOf(0));
     }
 
     private ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {

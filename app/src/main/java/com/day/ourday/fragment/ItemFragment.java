@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.view.TimePickerView;
+import com.commit451.nativestackblur.NativeStackBlur;
 import com.day.ourday.R;
 import com.day.ourday.ViewModel.ItemViewModel;
 import com.day.ourday.data.entity.Item;
@@ -45,14 +46,12 @@ public class ItemFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.item_fragment, container, false);
-        Bitmap bitmap = getArguments().getParcelable("bitmap");
-        Drawable drawable = new BitmapDrawable(getContext().getResources(), bitmap);
-        view.setBackground(drawable);
+        view = inflater.inflate(R.layout.fragment_item, container, false);
+        // FIXME restart activity error
+        view.setBackground(screenShot());
         init();
         return view;
     }
-
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -65,6 +64,19 @@ public class ItemFragment extends Fragment implements View.OnClickListener {
         initView();
         setListener();
         initData();
+    }
+
+    /**
+     * 每次都截图模糊
+     */
+    private Drawable screenShot() {
+        View decorView = getActivity().getWindow().getDecorView();
+        decorView.setDrawingCacheEnabled(true);
+        decorView.destroyDrawingCache();
+        decorView.buildDrawingCache();
+        Bitmap bmp = decorView.getDrawingCache();
+        Bitmap bitmap = NativeStackBlur.process(bmp, 35);
+        return new BitmapDrawable(getContext().getResources(), bitmap);
     }
 
     private void initView() {
