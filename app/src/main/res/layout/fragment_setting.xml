@@ -46,7 +46,7 @@
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <com.day.ourday.view.SpringScrollView
+    <com.day.ourday.view.SpringNestedScrollView
         android:layout_width="match_parent"
         android:layout_height="654dp"
         android:paddingStart="16dp"
@@ -100,9 +100,10 @@
                 android:paddingBottom="4dp"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
+                android:drawableEnd="@drawable/ic_right"
                 android:textStyle="bold" />
         </LinearLayout>
 
-    </com.day.ourday.view.SpringScrollView>
+    </com.day.ourday.view.SpringNestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

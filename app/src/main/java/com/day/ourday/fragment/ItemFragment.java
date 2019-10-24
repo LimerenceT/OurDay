@@ -29,7 +29,7 @@ import com.day.ourday.util.DateUtils;
 import java.util.Date;
 
 public class ItemFragment extends Fragment implements View.OnClickListener {
-
+    private static final String TAG = "ItemFragment";
     private ItemViewModel itemViewModel;
     private EditText editText;
     private TextView dateView;
@@ -47,20 +47,19 @@ public class ItemFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_item, container, false);
-        // FIXME restart activity error
-        view.setBackground(screenShot());
-        init();
         return view;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        init();
+        view.setBackground(screenShot());
         itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
         // TODO: Use the ViewModel
     }
 
-    public void init() {
+    private void init() {
         initView();
         setListener();
         initData();
@@ -149,5 +148,10 @@ public class ItemFragment extends Fragment implements View.OnClickListener {
                 timePicker.show();
                 break;
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
     }
 }

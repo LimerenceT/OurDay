@@ -108,19 +108,31 @@ public class MainFragment extends Fragment {
             }
         });
 
-        addItemTextView.setOnClickListener(view -> getFragmentManager().beginTransaction()
-                .addToBackStack(null)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .add(R.id.fragment_container, ItemFragment.newInstance(), "ItemFragment")
-                .commit()
+        addItemTextView.setOnClickListener(view -> {
+                    ItemFragment itemFragment = (ItemFragment) getFragmentManager().findFragmentByTag("ItemFragment");
+                    if (itemFragment == null) {
+                        itemFragment = ItemFragment.newInstance();
+                    }
+                    getFragmentManager().beginTransaction()
+                            .addToBackStack(null)
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                            .add(R.id.fragment_container, itemFragment, "ItemFragment")
+                            .commit();
+                }
         );
 
-        settingTextView.setOnClickListener(view -> getFragmentManager().beginTransaction()
-                .addToBackStack(null)
-                .hide(this)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .add(R.id.fragment_container, SettingFragment.newInstance(), "SettingFragment")
-                .commit()
+        settingTextView.setOnClickListener(view -> {
+                    SettingFragment settingFragment = (SettingFragment) getFragmentManager().findFragmentByTag("SettingFragment");
+                    if (settingFragment == null) {
+                        settingFragment = SettingFragment.newInstance();
+                    }
+                    getFragmentManager().beginTransaction()
+                            .addToBackStack(null)
+                            .hide(this)
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                            .add(R.id.fragment_container, settingFragment, "SettingFragment")
+                            .commit();
+                }
         );
     }
 

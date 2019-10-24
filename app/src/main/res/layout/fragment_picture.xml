@@ -61,7 +61,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
 
-    <com.day.ourday.view.SpringScrollView
+    <com.day.ourday.view.SpringNestedScrollView
         android:layout_width="match_parent"
         android:layout_height="654dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -78,6 +78,6 @@
                 android:src="@drawable/ic_camera" />
         </LinearLayout>
 
-    </com.day.ourday.view.SpringScrollView>
+    </com.day.ourday.view.SpringNestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
