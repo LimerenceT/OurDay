@@ -1,83 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/item_list_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".fragment.MainFragment">
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
 
-    <ImageView
-        android:id="@+id/imageBlurView"
+    <data>
+        <variable
+            name="viewModel"
+            type="com.day.ourday.viewmodel.ItemViewModel"/>
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/item_list_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#000000"
-        android:visibility="invisible" />
+        tools:context=".fragment.MainFragment">
 
-    <FrameLayout
-        android:id="@+id/frameLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="15dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <include layout="@layout/item_list" />
-    </FrameLayout>
-
-
-    <SeekBar
-        android:id="@+id/seekBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginBottom="16dp"
-        android:visibility="gone" />
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#00000000"
-        android:layout_marginTop="15dp"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <ImageView
+            android:id="@+id/imageBlurView"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="match_parent"
+            android:background="#000000"
+            android:visibility="invisible" />
+
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            <include
+                layout="@layout/item_list"
+                bind:viewModel="@{viewModel}"/>
+        </FrameLayout>
+
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="16dp"
+            android:max="160"
+            android:visibility="gone" />
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:background="#00000000"
-            app:popupTheme="@style/AppTheme.PopupOverlay">
+            android:paddingTop="15dp"
+            android:theme="@style/AppTheme.AppBarOverlay">
 
-            <TextView
-                android:id="@+id/setting"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:layout_gravity="start"
-                android:drawableStart="@drawable/ic_menu"
-                android:padding="2dp" />
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:contentScrim="@android:color/transparent"
+                app:expandedTitleGravity="top"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
-            <TextView
-                android:id="@+id/addItem"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:layout_gravity="end"
-                android:layout_marginEnd="15dp"
-                android:drawableStart="@drawable/ic_plus_circle"
-                android:padding="2dp" />
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/title_activity_main"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/title_activity_main"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="#FFFFFF"
-                android:textStyle="bold" />
-        </androidx.appcompat.widget.Toolbar>
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@android:color/transparent"
+                    app:popupTheme="@style/AppTheme.PopupOverlay">
+                    <TextView
+                        android:id="@+id/setting"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_gravity="start"
+                        android:drawableStart="@drawable/ic_menu"
+                        android:padding="2dp" />
 
-    </com.google.android.material.appbar.AppBarLayout>
+                    <TextView
+                        android:id="@+id/addItem"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_gravity="end"
+                        android:layout_marginEnd="15dp"
+                        android:drawableStart="@drawable/ic_plus_circle"
+                        android:padding="2dp" />
 
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+                </androidx.appcompat.widget.Toolbar>
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

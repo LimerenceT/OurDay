@@ -34,12 +34,16 @@ public class SpringNestedScrollView extends NestedScrollView {
     public boolean onTouchEvent(MotionEvent e) {
         switch (e.getAction()) {
             case MotionEvent.ACTION_MOVE:
-                if (getScrollY() <= 0) {
+                if (getScrollY() == 0) {
                     //顶部下拉
                     if (startDragY == 0) {
                         startDragY = e.getRawY();
                     }
                     if (e.getRawY() - startDragY > 0) {
+                        setTranslationY((e.getRawY() - startDragY) / 3);
+                        // todo zoom header
+                        return true;
+                    } else if(e.getRawY() - startDragY < 0) {
                         setTranslationY((e.getRawY() - startDragY) / 3);
                         return true;
                     } else {
@@ -58,6 +62,7 @@ public class SpringNestedScrollView extends NestedScrollView {
                         springAnim.cancel();
                         setTranslationY(0);
                     }
+                    break;
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -70,5 +75,6 @@ public class SpringNestedScrollView extends NestedScrollView {
         }
         return super.onTouchEvent(e);
     }
+
 
 }

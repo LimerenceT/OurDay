@@ -44,12 +44,7 @@ public class MainActivity extends AppCompatActivity implements PictureFragment.B
                 .add(R.id.fragment_container, mainFragment, "MainFragment")
                 .commit();
     }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-    }
-
+    
     /**
      * 设置背景图全屏显示
      */

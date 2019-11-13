@@ -1,61 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:orientation="horizontal"
-    android:baselineAligned="false">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="item"
+            type="com.day.ourday.data.entity.Item" />
+    </data>
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/item_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/text_left_right_margin"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="@dimen/text_top_bottom_margin"
-            android:textAppearance="?attr/textAppearanceListItem"
-            android:textColor="#F4F4F4" />
-
-        <TextView
-            android:id="@+id/item_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/text_left_right_margin"
-            android:paddingBottom="@dimen/text_top_bottom_margin"
-            android:textAppearance="?attr/textAppearanceListItemSecondary"
-            android:textColor="#8D8888" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:orientation="horizontal"
-        android:layout_marginTop="@dimen/text_left_right_margin"
-        android:layout_marginEnd="@dimen/text_left_right_margin">
+        android:baselineAligned="false">
 
-        <TextView
-            android:id="@+id/item_day"
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/item_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/text_left_right_margin"
+                android:layout_marginTop="16dp"
+                android:text="@{item.name}"
+                android:layout_marginBottom="@dimen/text_top_bottom_margin"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="#F4F4F4" />
+
+            <TextView
+                android:id="@+id/item_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{item.date}"
+                android:layout_marginStart="@dimen/text_left_right_margin"
+                android:paddingBottom="@dimen/text_top_bottom_margin"
+                android:textAppearance="?attr/textAppearanceListItemSecondary"
+                android:textColor="#8D8888" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textColor="#F4F4F4" />
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/text_left_right_margin"
+            android:layout_marginEnd="@dimen/text_left_right_margin">
 
-        <TextView
-            android:id="@+id/day_after_before"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="5dp"
-            android:textColor="#F4F4F4"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/item_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="@{String.valueOf(Math.abs(item.days))}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="#F4F4F4" />
+
+            <TextView
+                android:id="@+id/day_after_before"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                app:days="@{item.days}"
+                android:layout_marginStart="5dp"
+                android:textColor="#F4F4F4"
+                android:textSize="12sp" />
+        </LinearLayout>
+
     </LinearLayout>
-
-</LinearLayout>
+</layout>

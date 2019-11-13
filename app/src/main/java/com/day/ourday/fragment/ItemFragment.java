@@ -22,7 +22,7 @@ import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.commit451.nativestackblur.NativeStackBlur;
 import com.day.ourday.R;
-import com.day.ourday.ViewModel.ItemViewModel;
+import com.day.ourday.viewmodel.ItemViewModel;
 import com.day.ourday.data.entity.Item;
 import com.day.ourday.util.DateUtils;
 

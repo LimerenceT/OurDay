@@ -51,6 +51,7 @@ public class Item implements Serializable {
 
     public void setDate(String date) {
         this.date = date;
+
     }
 
     public int getDays() {

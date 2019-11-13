@@ -1,16 +1,17 @@
 package com.day.ourday.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.day.ourday.BR;
 import com.day.ourday.R;
 import com.day.ourday.data.entity.Item;
 import com.day.ourday.util.DateUtils;
@@ -42,36 +43,19 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
 
     @NonNull
     @Override
-    public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ItemViewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item, parent, false));
+    public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        ViewDataBinding dataBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.item, parent, false);
+        return new ItemViewHolder(dataBinding);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ItemViewHolder holder, int position, @NonNull List<Object> payloads) {
-        super.onBindViewHolder(holder, position, payloads);
-    }
-
-    @Override
-    public void onBindViewHolder(final ItemViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         Item item = items.get(position);
-        holder.mNameView.setText(item.getName());
-        holder.mDateView.setText(item.getDate());
         item.setDays(DateUtils.getDays(item.getDate()));
-        int days = item.getDays();
-        if (days>0) {
-            holder.dayAfterOrBefore.setText("天后");
-            holder.dayAfterOrBefore.setBackgroundColor(Color.BLUE);
-        } else if (days<0) {
-            holder.dayAfterOrBefore.setText("天前");
-            holder.dayAfterOrBefore.setBackgroundColor(Color.RED);
-        } else {
-            holder.dayAfterOrBefore.setText("今天");
-            holder.dayAfterOrBefore.setBackgroundColor(Color.GRAY);
-        }
-        holder.mDayView.setText(String.valueOf(Math.abs(days)));
-        holder.itemView.setTag(item);
+        holder.mBinding.setVariable(BR.item, item);
+        holder.mBinding.executePendingBindings();
         holder.itemView.setOnClickListener(mOnClickListener);
+        holder.itemView.setTag(item);
     }
 
     @Override
@@ -82,18 +66,13 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
         return 0;
     }
 
-    class ItemViewHolder extends RecyclerView.ViewHolder {
-        final TextView mNameView;
-        final TextView mDateView;
-        final TextView mDayView;
-        final TextView dayAfterOrBefore;
+    class ItemViewHolder<T extends ViewDataBinding> extends RecyclerView.ViewHolder {
+        private T mBinding;
 
-        ItemViewHolder(View view) {
-            super(view);
-            mNameView = view.findViewById(R.id.item_name);
-            mDateView = view.findViewById(R.id.item_date);
-            mDayView = view.findViewById(R.id.item_day);
-            dayAfterOrBefore = view.findViewById(R.id.day_after_before);
+        public ItemViewHolder(T binding) {
+            super(binding.getRoot());
+            this.mBinding = binding;
         }
+
     }
 }
