@@ -24,7 +24,6 @@ import com.day.ourday.R;
 import com.day.ourday.adapter.ItemListAdapter;
 import com.day.ourday.data.entity.Item;
 import com.day.ourday.databinding.FragmentMainBinding;
-import com.day.ourday.util.DateUtils;
 import com.day.ourday.viewmodel.ItemViewModel;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
@@ -63,24 +62,15 @@ public class MainFragment extends Fragment {
     }
 
     private void initData() {
+        itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
         recyclerViewAdapter = new ItemListAdapter();
+        recyclerViewAdapter.setViewModel(itemViewModel);
         recyclerView.setAdapter(recyclerViewAdapter);
         itemTouchHelper.attachToRecyclerView(recyclerView);
-        itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
         dataBinding.setVariable(BR.viewModel, itemViewModel);
         dataBinding.setLifecycleOwner(this);
         itemViewModel.getItems().observe(this, items -> {
             recyclerViewAdapter.updateItems(items);
-            Item item;
-            if (!items.isEmpty()) {
-                item = items.get(0);
-            } else {
-                item = new Item(getResources()
-                        .getString(R.string.default_name), getResources().getString(R.string.default_date));
-            }
-            item.setDays(DateUtils.getDays(item.getDate()));
-            itemViewModel.getHeader().postValue(item);
-
         });
     }
 
@@ -122,6 +112,7 @@ public class MainFragment extends Fragment {
                     }
                     getFragmentManager().beginTransaction()
                             .addToBackStack(null)
+                            .hide(this)
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                             .add(R.id.fragment_container, itemFragment, "ItemFragment")
                             .commit();
