@@ -11,6 +11,7 @@ import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.widget.NestedScrollView;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -24,6 +25,7 @@ import com.day.ourday.R;
 import com.day.ourday.adapter.ItemListAdapter;
 import com.day.ourday.data.entity.Item;
 import com.day.ourday.databinding.FragmentMainBinding;
+import com.day.ourday.view.SpringNestedScrollView;
 import com.day.ourday.viewmodel.ItemViewModel;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
@@ -141,6 +143,7 @@ public class MainFragment extends Fragment {
 
     private void initView() {
         // todo: root and include child can't just use
+        view.findViewById(R.id.app_bar).getBackground().setAlpha(0);
         imageView = view.findViewById(R.id.imageView);
         recyclerView = view.findViewById(R.id.item_list);
         recyclerView.addItemDecoration(
@@ -149,6 +152,18 @@ public class MainFragment extends Fragment {
                         .sizeResId(R.dimen.divider)
                         .marginResId(R.dimen.left_margin, R.dimen.right_margin)
                         .build());
+
+        SpringNestedScrollView springNestedScrollView = view.findViewById(R.id.springNestedScrollview);
+        springNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                if (scrollY > 200) {
+                    view.findViewById(R.id.app_bar).getBackground().setAlpha(Math.min(255, scrollY));
+                } else {
+                    view.findViewById(R.id.app_bar).getBackground().setAlpha(Math.max(scrollY - 50, 0));
+                }
+            }
+        });
     }
 
     private ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {

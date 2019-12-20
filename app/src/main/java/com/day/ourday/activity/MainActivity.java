@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentTransaction;
@@ -35,6 +36,8 @@ public class MainActivity extends AppCompatActivity implements PictureFragment.B
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         bg = findViewById(R.id.imageView);
+        Toolbar myToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(myToolbar);
         requestStoragePermission(this);
         displayFullBackground(this);
 

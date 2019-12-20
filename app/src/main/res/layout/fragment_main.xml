@@ -47,7 +47,7 @@
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#00000000"
+            android:background="@android:color/darker_gray"
             android:paddingTop="15dp"
             android:theme="@style/AppTheme.AppBarOverlay">
 
@@ -56,20 +56,10 @@
                 android:layout_height="match_parent"
                 app:contentScrim="@android:color/transparent"
                 app:expandedTitleGravity="top"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+                >
 
-                <TextView
-                    android:id="@+id/title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/title_activity_main"
-                    android:textAlignment="center"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
 
-                <androidx.appcompat.widget.Toolbar
+                <Toolbar
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
@@ -84,6 +74,18 @@
                         android:padding="2dp" />
 
                     <TextView
+                        android:id="@+id/title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/title_activity_main"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold" />
+
+
+                    <TextView
                         android:id="@+id/addItem"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
@@ -93,7 +95,7 @@
                         android:padding="2dp" />
 
 
-                </androidx.appcompat.widget.Toolbar>
+                </Toolbar>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 
         </com.google.android.material.appbar.AppBarLayout>
