@@ -3,10 +3,11 @@ package com.day.ourday.fragment;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.os.ParcelFileDescriptor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import com.day.ourday.databinding.FragmentPictureBinding;
 import com.day.ourday.viewmodel.PictureViewModel;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.UUID;
@@ -83,17 +85,25 @@ public class PictureFragment extends Fragment {
     }
 
     private void displayImage(Uri imageUri) throws IOException {
-        bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig= Bitmap.Config.RGB_565;
+        ParcelFileDescriptor parcelFileDescriptor =
+                getContext().getContentResolver().openFileDescriptor(imageUri, "r");
+        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+        Bitmap bitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
+        parcelFileDescriptor.close();
+
         String fileName = UUID.randomUUID().toString() + ".jpg";
         File file = new File(getContext().getFilesDir(), fileName);
         if (!file.exists()) {
             try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, fileOutputStream);
             }
         }
 //        BitmapDrawable drawable = new BitmapDrawable(getContext().getResources(), bitmap);
-        pictureViewModel.getMainBg().setValue(Drawable.createFromPath(file.getPath()));
-        dataBinding.getRoot().setBackground(Drawable.createFromPath(file.getPath()));
+        pictureViewModel.getMainBgUri().setValue(fileName);
+
+//        dataBinding.getRoot().setBackground(Drawable.createFromPath(file.getPath()));
     }
 
 }

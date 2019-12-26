@@ -21,9 +21,12 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.bumptech.glide.Glide;
 import com.day.ourday.R;
 import com.day.ourday.fragment.MainFragment;
 import com.day.ourday.viewmodel.PictureViewModel;
+
+import java.io.File;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -43,8 +46,20 @@ public class MainActivity extends AppCompatActivity {
         requestStoragePermission(this);
         displayFullBackground(this);
         pictureViewModel = ViewModelProviders.of(this).get(PictureViewModel.class);
-        pictureViewModel.getMainBg().observe(this, drawable -> bg.setImageDrawable(drawable));
-
+        pictureViewModel.getMainBgUri().observe(this, filePath -> {
+                    if (filePath == null) {
+                        Glide.with(this)
+                                .load(R.drawable.tang)
+                                .centerCrop()
+                                .into(bg);
+                    } else {
+                        Glide.with(this)
+                                .load(new File(getFilesDir(), filePath))
+                                .centerCrop()
+                                .into(bg);
+                    }
+                }
+        );
 
 
         MainFragment mainFragment = MainFragment.newInstance();
@@ -53,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 .add(R.id.fragment_container, mainFragment, "MainFragment")
                 .commit();
     }
-    
+
     /**
      * 设置背景图全屏显示
      */
