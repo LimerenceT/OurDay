@@ -1,13 +1,10 @@
 package com.day.ourday.fragment;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,23 +16,17 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.commit451.nativestackblur.NativeStackBlur;
-import com.day.ourday.BR;
 import com.day.ourday.R;
 import com.day.ourday.adapter.ItemListAdapter;
 import com.day.ourday.data.entity.Item;
 import com.day.ourday.databinding.FragmentMainBinding;
-import com.day.ourday.view.SpringNestedScrollView;
 import com.day.ourday.viewmodel.ItemViewModel;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 
 public class MainFragment extends Fragment {
     private static final String TAG = "MainFragment";
-    private RecyclerView recyclerView;
     private ItemListAdapter recyclerViewAdapter;
-    private Bitmap blurBitmap;
-    private ImageView imageView;
     private ItemViewModel itemViewModel;
     private View view;
     private FragmentMainBinding dataBinding;
@@ -56,7 +47,7 @@ public class MainFragment extends Fragment {
         dataBinding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_main, container, false);
         view = dataBinding.getRoot();
-        blurImage();
+//        blurImage();
         initView();
         initData();
         setListener();
@@ -67,45 +58,43 @@ public class MainFragment extends Fragment {
         itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
         recyclerViewAdapter = new ItemListAdapter();
         recyclerViewAdapter.setViewModel(itemViewModel);
-        recyclerView.setAdapter(recyclerViewAdapter);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
-        dataBinding.setVariable(BR.viewModel, itemViewModel);
+        dataBinding.itemList.itemList.setAdapter(recyclerViewAdapter);
+        itemTouchHelper.attachToRecyclerView(dataBinding.itemList.itemList);
+        dataBinding.setViewModel(itemViewModel);
         dataBinding.setLifecycleOwner(this);
-        itemViewModel.getItems().observe(this, items -> {
-            recyclerViewAdapter.updateItems(items);
-        });
+        itemViewModel.getItems().observe(this, items -> recyclerViewAdapter.updateItems(items));
     }
 
 
     private void setListener() {
 
-        dataBinding.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            boolean blur = false;
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                dataBinding.imageBlurView.setVisibility(View.VISIBLE);
-                dataBinding.imageBlurView.getBackground().setAlpha(i);
-                if (i > 150 && !blur) {
-                    imageView.setImageBitmap(blurBitmap);
-                    blur = true;
-                }
-                if (i < 150 && blur) {
-                    imageView.setImageResource(R.drawable.tang);
-                    blur = false;
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
+//        dataBinding.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            boolean blur = false;
+//
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+//                dataBinding.imageBlurView.setVisibility(View.VISIBLE);
+//                dataBinding.imageBlurView.getBackground().setAlpha(i);
+//                if (i > 150 && !blur) {
+//                    imageView.setImageBitmap(blurBitmap);
+//                    blur = true;
+//                }
+//                if (i < 150 && blur) {
+//                    imageView.setImageResource(R.drawable.tang);
+//                    blur = false;
+//                }
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//
+//            }
+//        });
 
         dataBinding.addItem.setOnClickListener(view -> {
                     ItemFragment itemFragment = (ItemFragment) getFragmentManager().findFragmentByTag("ItemFragment");
@@ -136,36 +125,36 @@ public class MainFragment extends Fragment {
         );
     }
 
-    private void blurImage() {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.tang);
-        blurBitmap = NativeStackBlur.process(bitmap, 50);
+//    private void blurImage() {
+//        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.tang);
+//        blurBitmap = NativeStackBlur.process(bitmap, 50);
+//    }
+    /** 根据百分比改变颜色透明度 */
+    public int changeAlpha(int color, float fraction) {
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        int alpha = (int) (Color.alpha(color) * fraction);
+        return Color.argb(alpha, red, green, blue);
     }
 
     private void initView() {
-        // todo: root and include child can't just use
-        view.findViewById(R.id.app_bar).getBackground().setAlpha(0);
-        imageView = view.findViewById(R.id.imageView);
-        recyclerView = view.findViewById(R.id.item_list);
-        recyclerView.addItemDecoration(
+        dataBinding.appBar.getBackground().setAlpha(0);
+        dataBinding.itemList.itemList.addItemDecoration(
                 new HorizontalDividerItemDecoration.Builder(getActivity())
                         .drawable(R.color.colorDivider)
                         .sizeResId(R.dimen.divider)
                         .marginResId(R.dimen.left_margin, R.dimen.right_margin)
                         .build());
 
-        SpringNestedScrollView springNestedScrollView = view.findViewById(R.id.springNestedScrollview);
-        springNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
-            @Override
-            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                if (scrollY > 200) {
-                    view.findViewById(R.id.app_bar).getBackground().setAlpha(Math.min(255, scrollY));
-                } else {
-                    view.findViewById(R.id.app_bar).getBackground().setAlpha(Math.max(scrollY - 50, 0));
-                }
+        dataBinding.itemList.springNestedScrollview.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            if (scrollY > 200) {
+                dataBinding.appBar.getBackground().setAlpha(Math.min(255, scrollY));
+            } else {
+                dataBinding.appBar.getBackground().setAlpha(Math.max(scrollY - 50, 0));
             }
         });
     }
-
     private ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {

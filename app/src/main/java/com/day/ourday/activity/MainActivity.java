@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -20,16 +19,19 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.day.ourday.R;
 import com.day.ourday.fragment.MainFragment;
-import com.day.ourday.fragment.PictureFragment;
+import com.day.ourday.viewmodel.PictureViewModel;
 
 
-public class MainActivity extends AppCompatActivity implements PictureFragment.BackgroundListener {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int STORAGE_PERMISSION = 0x20;
     private ImageView bg;
+    private PictureViewModel pictureViewModel;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +42,10 @@ public class MainActivity extends AppCompatActivity implements PictureFragment.B
         setSupportActionBar(myToolbar);
         requestStoragePermission(this);
         displayFullBackground(this);
+        pictureViewModel = ViewModelProviders.of(this).get(PictureViewModel.class);
+        pictureViewModel.getMainBg().observe(this, drawable -> bg.setImageDrawable(drawable));
+
+
 
         MainFragment mainFragment = MainFragment.newInstance();
         getSupportFragmentManager().beginTransaction()
@@ -92,11 +98,5 @@ public class MainActivity extends AppCompatActivity implements PictureFragment.B
             }
         }
         return super.dispatchTouchEvent(event);
-    }
-
-
-    @Override
-    public void setBackground(Bitmap bitmap) {
-        bg.setImageBitmap(bitmap);
     }
 }

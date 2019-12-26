@@ -25,7 +25,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
     private ItemViewModel viewModel;
 
 
-    public void setItems(List<Item> items) {
+    private void setItems(List<Item> items) {
         this.items = items;
         Item item;
         if (!items.isEmpty()) {

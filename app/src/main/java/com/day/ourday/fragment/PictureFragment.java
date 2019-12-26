@@ -3,7 +3,7 @@ package com.day.ourday.fragment;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -12,26 +12,34 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.day.ourday.R;
-import com.day.ourday.activity.MainActivity;
+import com.day.ourday.databinding.FragmentPictureBinding;
+import com.day.ourday.viewmodel.PictureViewModel;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 import static android.app.Activity.RESULT_OK;
 
 public class PictureFragment extends Fragment {
 
     private static final int REQUEST_CODE_GALLERY = 0x10;
+    private FragmentPictureBinding dataBinding;
+    private PictureViewModel pictureViewModel;
     private Bitmap bitmap;
-    private View view;
-    private View confirm;
+
+
     public PictureFragment() {
         // Required empty public constructor
     }
 
-    public static PictureFragment newInstance() {
+    static PictureFragment newInstance() {
         return new PictureFragment();
     }
 
@@ -39,18 +47,20 @@ public class PictureFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_picture, container, false);
+        dataBinding = DataBindingUtil.inflate(
+                inflater, R.layout.fragment_picture, container, false);
+        initView();
+        return dataBinding.getRoot();
+    }
 
-        ImageView imageView = view.findViewById(R.id.pick);
-        imageView.setOnClickListener(v -> pickPictureFromGallery());
-        confirm = view.findViewById(R.id.confirm);
-        confirm.setOnClickListener(v -> {
-            MainActivity activity = (MainActivity) this.getActivity();
-            activity.setBackground(bitmap);
+    private void initView() {
+        pictureViewModel = ViewModelProviders.of(requireActivity()).get(PictureViewModel.class);
+        dataBinding.pick.setOnClickListener(v -> pickPictureFromGallery());
+        dataBinding.confirm.setOnClickListener(v -> {
+            ImageView imageView = getActivity().findViewById(R.id.imageView);
+            imageView.setImageBitmap(bitmap);
         });
-        View back = view.findViewById(R.id.cancel);
-        back.setOnClickListener(view -> getFragmentManager().popBackStack());
-        return view;
+        dataBinding.cancel.setOnClickListener(view -> getFragmentManager().popBackStack());
     }
 
     @Override
@@ -65,22 +75,25 @@ public class PictureFragment extends Fragment {
     }
 
     private void pickPictureFromGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        // 以startActivityForResult的方式启动一个activity用来获取返回的结果
+        Intent intent=new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        String[] mimeTypes = {"image/jpeg", "image/png"};
+        intent.putExtra(Intent.EXTRA_MIME_TYPES,mimeTypes);
         startActivityForResult(intent, REQUEST_CODE_GALLERY);
-
     }
 
     private void displayImage(Uri imageUri) throws IOException {
         bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
-        view.setBackground(new BitmapDrawable(getContext().getResources(), bitmap));
-        confirm.setVisibility(View.VISIBLE);
-
-        //todo yasuo
-
+        String fileName = UUID.randomUUID().toString() + ".jpg";
+        File file = new File(getContext().getFilesDir(), fileName);
+        if (!file.exists()) {
+            try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+            }
+        }
+//        BitmapDrawable drawable = new BitmapDrawable(getContext().getResources(), bitmap);
+        pictureViewModel.getMainBg().setValue(Drawable.createFromPath(file.getPath()));
+        dataBinding.getRoot().setBackground(Drawable.createFromPath(file.getPath()));
     }
 
-    public interface BackgroundListener {
-        void setBackground(Bitmap bitmap);
-    }
 }
