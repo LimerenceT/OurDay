@@ -33,6 +33,7 @@
                 android:nestedScrollingEnabled="false"
                 app:layoutManager="LinearLayoutManager"
                 tools:context=".activity.MainActivity"
+                app:items="@{viewModel.items}"
                 tools:listitem="@layout/item" />
         </LinearLayout>
     </com.day.ourday.view.SpringNestedScrollView>

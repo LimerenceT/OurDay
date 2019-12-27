@@ -13,22 +13,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 
-import com.day.ourday.R;
 import com.day.ourday.adapter.PictureListAdapter;
 import com.day.ourday.databinding.FragmentPictureBinding;
+import com.day.ourday.viewmodel.PictureListViewModel;
 import com.day.ourday.viewmodel.PictureViewModel;
 
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.UUID;
 
 import static android.app.Activity.RESULT_OK;
@@ -39,7 +36,7 @@ public class PictureFragment extends Fragment {
     private FragmentPictureBinding dataBinding;
     private PictureViewModel pictureViewModel;
     private String fileName;
-
+    private PictureListViewModel pictureListViewModel;
 
     public PictureFragment() {
         // Required empty public constructor
@@ -53,29 +50,39 @@ public class PictureFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        dataBinding = DataBindingUtil.inflate(
-                inflater, R.layout.fragment_picture, container, false);
+        dataBinding = FragmentPictureBinding.inflate(inflater, container, false);
+        dataBinding.setLifecycleOwner(this);
         initView();
         return dataBinding.getRoot();
     }
 
     private void initView() {
+
+        pictureListViewModel = ViewModelProviders.of(this).get(PictureListViewModel.class);
         pictureViewModel = ViewModelProviders.of(requireActivity()).get(PictureViewModel.class);
+        pictureViewModel.getPictureOldPath().setValue(pictureViewModel.getMainBgPicturePath().getValue());
+        dataBinding.setViewModel(pictureListViewModel);
         dataBinding.pick.setOnClickListener(v -> pickPictureFromGallery());
         dataBinding.confirm.setOnClickListener(v -> {
-            pictureViewModel.getMainBgUri().setValue(fileName);
+            pictureViewModel.getMainBgPicturePath().setValue(fileName);
             SharedPreferences sharedPreferences = getContext().getSharedPreferences("bg", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("bgp", fileName);
+            editor.apply();
             getFragmentManager().popBackStack();
         });
-        dataBinding.cancel.setOnClickListener(view -> getFragmentManager().popBackStack());
-        PictureListAdapter pictureListAdapter = new PictureListAdapter();
-        ArrayList<String> arrayList = new ArrayList<>(Arrays.asList(getContext().getFilesDir().list()));
-        pictureListAdapter.setPictureList(arrayList);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 4);
+        dataBinding.cancel.setOnClickListener(view -> {
+            pictureViewModel.getMainBgPicturePath().setValue(pictureViewModel.getPictureOldPath().getValue());
+            getFragmentManager().popBackStack();
+        });
+        PictureListAdapter pictureListAdapter = new PictureListAdapter(pictureViewModel);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3);
         dataBinding.pictureList.setLayoutManager(gridLayoutManager);
         dataBinding.pictureList.setAdapter(pictureListAdapter);
+        pictureViewModel.getMainBgPicturePath().observe(this, (fileName)-> {
+            this.fileName = fileName;
+            dataBinding.confirm.setVisibility(View.VISIBLE);
+        });
     }
 
     @Override
@@ -115,7 +122,7 @@ public class PictureFragment extends Fragment {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 50, fileOutputStream);
             }
         }
-        dataBinding.previewBg.setImageBitmap(bitmap);
+        pictureListViewModel.refreshData();
     }
 
 }

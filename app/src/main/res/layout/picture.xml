@@ -6,6 +6,9 @@
         <variable
             name="picturePath"
             type="String" />
+        <variable
+            name="clickListener"
+            type="android.view.View.OnClickListener"/>
     </data>
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,10 +19,13 @@
 
         <ImageView
             android:id="@+id/picture"
-            android:layout_width="100dp"
-            android:layout_height="150dp"
+            android:layout_width="120dp"
+            android:layout_height="160dp"
             android:scaleType="centerCrop"
-            app:loadImage="@{picturePath}" />
+            app:loadImage="@{picturePath}"
+            android:onClick="@{clickListener}"
+
+            />
     </LinearLayout>
 
 

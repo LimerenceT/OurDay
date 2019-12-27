@@ -28,7 +28,7 @@ import com.day.ourday.util.DateUtils;
 
 import java.util.Date;
 
-public class ItemFragment extends Fragment implements View.OnClickListener {
+public class AddItemFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "ItemFragment";
     private ItemViewModel itemViewModel;
     private EditText editText;
@@ -39,8 +39,8 @@ public class ItemFragment extends Fragment implements View.OnClickListener {
     private TimePickerView timePicker;
     private View view;
 
-    public static ItemFragment newInstance() {
-        return new ItemFragment();
+    public static AddItemFragment newInstance() {
+        return new AddItemFragment();
     }
 
     @Override

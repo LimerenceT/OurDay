@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -46,19 +47,24 @@ public class MainActivity extends AppCompatActivity {
         requestStoragePermission(this);
         displayFullBackground(this);
         pictureViewModel = ViewModelProviders.of(this).get(PictureViewModel.class);
-        pictureViewModel.getMainBgUri().observe(this, filePath -> {
-                    if (filePath == null) {
-                        Glide.with(this)
-                                .load(R.drawable.tang)
-                                .centerCrop()
-                                .into(bg);
-                    } else {
-                        Glide.with(this)
-                                .load(new File(getFilesDir(), filePath))
-                                .centerCrop()
-                                .into(bg);
-                    }
+        pictureViewModel.getMainBgPicturePath().observe(this, filePath -> {
+                if (filePath == null) {
+                    bg.setImageResource(R.drawable.tang);
+                } else {
+                    // TODO: 19-12-27 cross fade bug 
+//                    DrawableCrossFadeFactory factory =
+//                            new DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build();
+                    Drawable drawable = bg.getDrawable();
+                    File file = new File(getFilesDir(), filePath);
+                    Glide.with(this)
+                            .asDrawable()
+                            .load(file)
+//                            .transition(withCrossFade(factory))
+                            .placeholder(drawable)
+                            .skipMemoryCache(false)
+                            .into(bg);
                 }
+            }
         );
 
 

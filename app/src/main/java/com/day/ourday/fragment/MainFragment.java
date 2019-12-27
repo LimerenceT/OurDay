@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.widget.NestedScrollView;
-import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
@@ -28,13 +27,11 @@ public class MainFragment extends Fragment {
     private static final String TAG = "MainFragment";
     private ItemListAdapter recyclerViewAdapter;
     private ItemViewModel itemViewModel;
-    private View view;
     private FragmentMainBinding dataBinding;
 
     public MainFragment() {
         // Required empty public constructor
     }
-
 
     public static MainFragment newInstance() {
         return new MainFragment();
@@ -44,14 +41,14 @@ public class MainFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        dataBinding = DataBindingUtil.inflate(
-                inflater, R.layout.fragment_main, container, false);
-        view = dataBinding.getRoot();
+        dataBinding = FragmentMainBinding.inflate(inflater, container, false);
 //        blurImage();
+        dataBinding.setLifecycleOwner(this);
+
         initView();
         initData();
         setListener();
-        return view;
+        return dataBinding.getRoot();
     }
 
     private void initData() {
@@ -62,7 +59,6 @@ public class MainFragment extends Fragment {
         itemTouchHelper.attachToRecyclerView(dataBinding.itemList.itemList);
         dataBinding.setViewModel(itemViewModel);
         dataBinding.setLifecycleOwner(this);
-        itemViewModel.getItems().observe(this, items -> recyclerViewAdapter.updateItems(items));
     }
 
 
@@ -97,15 +93,15 @@ public class MainFragment extends Fragment {
 //        });
 
         dataBinding.addItem.setOnClickListener(view -> {
-                    ItemFragment itemFragment = (ItemFragment) getFragmentManager().findFragmentByTag("ItemFragment");
-                    if (itemFragment == null) {
-                        itemFragment = ItemFragment.newInstance();
+                    AddItemFragment addItemFragment = (AddItemFragment) getFragmentManager().findFragmentByTag("ItemFragment");
+                    if (addItemFragment == null) {
+                        addItemFragment = AddItemFragment.newInstance();
                     }
                     getFragmentManager().beginTransaction()
                             .addToBackStack(null)
                             .hide(this)
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                            .add(R.id.fragment_container, itemFragment, "ItemFragment")
+                            .add(R.id.fragment_container, addItemFragment, "ItemFragment")
                             .commit();
                 }
         );
@@ -129,7 +125,10 @@ public class MainFragment extends Fragment {
 //        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.tang);
 //        blurBitmap = NativeStackBlur.process(bitmap, 50);
 //    }
-    /** 根据百分比改变颜色透明度 */
+
+    /**
+     * 根据百分比改变颜色透明度
+     */
     public int changeAlpha(int color, float fraction) {
         int red = Color.red(color);
         int green = Color.green(color);
@@ -155,6 +154,7 @@ public class MainFragment extends Fragment {
             }
         });
     }
+
     private ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {

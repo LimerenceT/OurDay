@@ -2,19 +2,19 @@ package com.day.ourday.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.day.ourday.BR
-import com.day.ourday.R
+import com.day.ourday.databinding.PictureBinding
+import com.day.ourday.viewmodel.PictureViewModel
 
 /**
  * Create by LimerenceT on 2019/12/26
  */
-class PictureListAdapter() : RecyclerView.Adapter<PictureListAdapter.PictureViewHolder>(){
-    var pictureList = ArrayList<String>()
+class PictureListAdapter(private val pictureViewModel: PictureViewModel) : RecyclerView.Adapter<PictureListAdapter.PictureViewHolder>(){
+    private var pictureList:List<String> = ArrayList()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PictureViewHolder {
-        val dataBinding = DataBindingUtil.inflate<ViewDataBinding>(LayoutInflater.from(parent.context), R.layout.picture, null, false)
+        val dataBinding = PictureBinding.inflate(LayoutInflater.from(parent.context), null, false)
         return PictureViewHolder(dataBinding)
     }
 
@@ -22,15 +22,23 @@ class PictureListAdapter() : RecyclerView.Adapter<PictureListAdapter.PictureView
         return pictureList.size
     }
 
+    fun updateList(pictureFileList: List<String>) {
+        pictureList= pictureFileList
+        notifyDataSetChanged()
+    }
+
     override fun onBindViewHolder(holder: PictureViewHolder, position: Int) {
         val picturePath = pictureList[position]
-        holder.mBinding.setVariable(BR.picturePath, picturePath)
-        holder.mBinding.executePendingBindings()
-        holder.itemView.tag = picturePath
-
+        with(holder.mBinding) {
+            setVariable(BR.picturePath, picturePath)
+            setClickListener {
+                pictureViewModel.mainBgPicturePath.value = holder.mBinding.picturePath
+            }
+            executePendingBindings()
+        }
     }
 
 
-    class PictureViewHolder(val mBinding: ViewDataBinding) : RecyclerView.ViewHolder(mBinding.root)
+    class PictureViewHolder(val mBinding: PictureBinding) : RecyclerView.ViewHolder(mBinding.root)
 }
 
