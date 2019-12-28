@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -14,6 +13,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -25,9 +25,10 @@ import androidx.lifecycle.ViewModelProviders;
 import com.bumptech.glide.Glide;
 import com.day.ourday.R;
 import com.day.ourday.fragment.MainFragment;
+import com.day.ourday.util.PicturePathUtilsKt;
 import com.day.ourday.viewmodel.PictureViewModel;
 
-import java.io.File;
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int STORAGE_PERMISSION = 0x20;
     private ImageView bg;
     private PictureViewModel pictureViewModel;
+    private SeekBar seekBar;
 
 
     @Override
@@ -44,28 +46,25 @@ public class MainActivity extends AppCompatActivity {
         bg = findViewById(R.id.imageView);
         Toolbar myToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
-        requestStoragePermission(this);
+//        requestStoragePermission(this);
         displayFullBackground(this);
         pictureViewModel = ViewModelProviders.of(this).get(PictureViewModel.class);
-        pictureViewModel.getMainBgPicturePath().observe(this, filePath -> {
-                if (filePath == null) {
-                    bg.setImageResource(R.drawable.tang);
-                } else {
-                    // TODO: 19-12-27 cross fade bug 
-//                    DrawableCrossFadeFactory factory =
-//                            new DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build();
-                    Drawable drawable = bg.getDrawable();
-                    File file = new File(getFilesDir(), filePath);
-                    Glide.with(this)
-                            .asDrawable()
-                            .load(file)
-//                            .transition(withCrossFade(factory))
-                            .placeholder(drawable)
-                            .skipMemoryCache(false)
-                            .into(bg);
+        pictureViewModel.getMainBgPictureName().observe(this, fileName -> {
+                    if (fileName == null) {
+                        bg.setImageResource(R.drawable.tang);
+                    } else {
+                        // TODO: 19-12-27 cross fade bug
+                        Glide.with(this)
+                                .asDrawable()
+                                .load(PicturePathUtilsKt.getFullPath(fileName))
+                                .transition(withCrossFade())
+                                .placeholder(bg.getDrawable())
+                                .skipMemoryCache(false)
+                                .into(bg);
+                    }
                 }
-            }
         );
+
 
 
         MainFragment mainFragment = MainFragment.newInstance();

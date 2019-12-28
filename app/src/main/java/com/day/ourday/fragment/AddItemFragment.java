@@ -1,8 +1,5 @@
 package com.day.ourday.fragment;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -20,11 +17,10 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.view.TimePickerView;
-import com.commit451.nativestackblur.NativeStackBlur;
 import com.day.ourday.R;
-import com.day.ourday.viewmodel.ItemViewModel;
 import com.day.ourday.data.entity.Item;
 import com.day.ourday.util.DateUtils;
+import com.day.ourday.viewmodel.ItemViewModel;
 
 import java.util.Date;
 
@@ -54,7 +50,6 @@ public class AddItemFragment extends Fragment implements View.OnClickListener {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         init();
-        view.setBackground(screenShot());
         itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
         // TODO: Use the ViewModel
     }
@@ -63,19 +58,6 @@ public class AddItemFragment extends Fragment implements View.OnClickListener {
         initView();
         setListener();
         initData();
-    }
-
-    /**
-     * 每次都截图模糊
-     */
-    private Drawable screenShot() {
-        View decorView = getActivity().getWindow().getDecorView();
-        decorView.setDrawingCacheEnabled(true);
-        decorView.destroyDrawingCache();
-        decorView.buildDrawingCache();
-        Bitmap bmp = decorView.getDrawingCache();
-        Bitmap bitmap = NativeStackBlur.process(bmp, 35);
-        return new BitmapDrawable(getContext().getResources(), bitmap);
     }
 
     private void initView() {

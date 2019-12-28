@@ -8,7 +8,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withC
 import com.day.ourday.adapter.ItemListAdapter
 import com.day.ourday.adapter.PictureListAdapter
 import com.day.ourday.data.entity.Item
-import java.io.File
+import com.day.ourday.util.getFullPath
 import java.util.*
 
 /**
@@ -26,9 +26,9 @@ fun setPictures(listView: RecyclerView, pictureFileList: List<String>?) {
 
 
 @BindingAdapter("app:loadImage")
-fun setImage(view: ImageView, picturePath: String) {
+fun setImage(view: ImageView, fileName: String) {
     Glide.with(view.context)
-            .load(File(view.context.filesDir, picturePath))
+            .load(getFullPath(fileName))
             .skipMemoryCache(false)
             .transition(withCrossFade())
             .into(view)

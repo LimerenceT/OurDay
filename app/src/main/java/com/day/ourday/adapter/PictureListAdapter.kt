@@ -28,11 +28,11 @@ class PictureListAdapter(private val pictureViewModel: PictureViewModel) : Recyc
     }
 
     override fun onBindViewHolder(holder: PictureViewHolder, position: Int) {
-        val picturePath = pictureList[position]
+        val pictureName = pictureList[position]
         with(holder.mBinding) {
-            setVariable(BR.picturePath, picturePath)
+            setVariable(BR.picturePath, pictureName)
             setClickListener {
-                pictureViewModel.mainBgPicturePath.value = holder.mBinding.picturePath
+                pictureViewModel.mainBgPictureName.value = holder.mBinding.picturePath
             }
             executePendingBindings()
         }

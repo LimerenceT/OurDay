@@ -9,16 +9,16 @@ import androidx.lifecycle.MutableLiveData
  * Create by LimerenceT on 2019/12/24
  */
 class PictureViewModel(application: Application) : AndroidViewModel(application) {
-    val mainBgPicturePath: MutableLiveData<String> = MutableLiveData()
-    val pictureOldPath = MutableLiveData<String>()
+    val mainBgPictureName: MutableLiveData<String> = MutableLiveData()
+    val oldPictureName = MutableLiveData<String>()
 
     init {
         val sharedPreferences = application.getSharedPreferences("bg", Context.MODE_PRIVATE)
         val bgp = sharedPreferences.getString("bgp", "")
         if (bgp.isNullOrEmpty()) {
-            mainBgPicturePath.value = null
+            mainBgPictureName.value = null
         } else {
-            mainBgPicturePath.value = bgp
+            mainBgPictureName.value = bgp
         }
     }
 

@@ -60,26 +60,26 @@ public class PictureFragment extends Fragment {
 
         pictureListViewModel = ViewModelProviders.of(this).get(PictureListViewModel.class);
         pictureViewModel = ViewModelProviders.of(requireActivity()).get(PictureViewModel.class);
-        pictureViewModel.getPictureOldPath().setValue(pictureViewModel.getMainBgPicturePath().getValue());
+        pictureViewModel.getOldPictureName().setValue(pictureViewModel.getMainBgPictureName().getValue());
         dataBinding.setViewModel(pictureListViewModel);
         dataBinding.pick.setOnClickListener(v -> pickPictureFromGallery());
         dataBinding.confirm.setOnClickListener(v -> {
-            pictureViewModel.getMainBgPicturePath().setValue(fileName);
+            pictureViewModel.getMainBgPictureName().setValue(fileName);
             SharedPreferences sharedPreferences = getContext().getSharedPreferences("bg", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("bgp", fileName);
             editor.apply();
-            getFragmentManager().popBackStack();
+            getFragmentManager().popBackStack(null, 1);
         });
         dataBinding.cancel.setOnClickListener(view -> {
-            pictureViewModel.getMainBgPicturePath().setValue(pictureViewModel.getPictureOldPath().getValue());
+            pictureViewModel.getMainBgPictureName().setValue(pictureViewModel.getOldPictureName().getValue());
             getFragmentManager().popBackStack();
         });
         PictureListAdapter pictureListAdapter = new PictureListAdapter(pictureViewModel);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3);
         dataBinding.pictureList.setLayoutManager(gridLayoutManager);
         dataBinding.pictureList.setAdapter(pictureListAdapter);
-        pictureViewModel.getMainBgPicturePath().observe(this, (fileName)-> {
+        pictureViewModel.getMainBgPictureName().observe(this, (fileName)-> {
             this.fileName = fileName;
             dataBinding.confirm.setVisibility(View.VISIBLE);
         });

@@ -1,10 +1,16 @@
 package com.day.ourday.fragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,10 +21,12 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.commit451.nativestackblur.NativeStackBlur;
 import com.day.ourday.R;
 import com.day.ourday.adapter.ItemListAdapter;
 import com.day.ourday.data.entity.Item;
 import com.day.ourday.databinding.FragmentMainBinding;
+import com.day.ourday.util.PicturePathUtilsKt;
 import com.day.ourday.viewmodel.ItemViewModel;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
@@ -28,11 +36,13 @@ public class MainFragment extends Fragment {
     private ItemListAdapter recyclerViewAdapter;
     private ItemViewModel itemViewModel;
     private FragmentMainBinding dataBinding;
+    private Bitmap bitmap;
 
     public MainFragment() {
         // Required empty public constructor
     }
 
+    // TODO: 2019/12/28 Memory Leak
     public static MainFragment newInstance() {
         return new MainFragment();
     }
@@ -42,7 +52,6 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         dataBinding = FragmentMainBinding.inflate(inflater, container, false);
-//        blurImage();
         dataBinding.setLifecycleOwner(this);
 
         initView();
@@ -59,38 +68,40 @@ public class MainFragment extends Fragment {
         itemTouchHelper.attachToRecyclerView(dataBinding.itemList.itemList);
         dataBinding.setViewModel(itemViewModel);
         dataBinding.setLifecycleOwner(this);
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("bg", Context.MODE_PRIVATE);
+        String fileName = sharedPreferences.getString("bgp", "");
+        bitmap = fileName.isEmpty() ? BitmapFactory.decodeResource(getContext().getResources(), R.drawable.tang) :
+                BitmapFactory.decodeFile(PicturePathUtilsKt.getFullPath(fileName));
+        ImageView blurView = getActivity().findViewById(R.id.imageBlurView);
+        blurView.setImageBitmap(NativeStackBlur.process(this.bitmap, 50));
+        blurView.setVisibility(View.VISIBLE);
+        dataBinding.seekBar.setVisibility(View.VISIBLE);
+
     }
 
 
     private void setListener() {
 
-//        dataBinding.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            boolean blur = false;
-//
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-//                dataBinding.imageBlurView.setVisibility(View.VISIBLE);
-//                dataBinding.imageBlurView.getBackground().setAlpha(i);
-//                if (i > 150 && !blur) {
-//                    imageView.setImageBitmap(blurBitmap);
-//                    blur = true;
-//                }
-//                if (i < 150 && blur) {
-//                    imageView.setImageResource(R.drawable.tang);
-//                    blur = false;
-//                }
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//        });
+        dataBinding.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                ImageView imageView = getActivity().findViewById(R.id.imageView);
+                imageView.setImageAlpha(255 - i);
+                imageView.getForeground().setAlpha(i);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                dataBinding.seekBar.setThumb(getResources().getDrawable(R.drawable.thumb_press));
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                dataBinding.seekBar.setThumb(getResources().getDrawable(R.drawable.thumb_normal));
+            }
+        });
 
         dataBinding.addItem.setOnClickListener(view -> {
                     AddItemFragment addItemFragment = (AddItemFragment) getFragmentManager().findFragmentByTag("ItemFragment");
@@ -120,11 +131,6 @@ public class MainFragment extends Fragment {
                 }
         );
     }
-
-//    private void blurImage() {
-//        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.tang);
-//        blurBitmap = NativeStackBlur.process(bitmap, 50);
-//    }
 
     /**
      * 根据百分比改变颜色透明度
