@@ -1,5 +1,6 @@
 package com.day.ourday
 
+import android.view.View
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -7,6 +8,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.day.ourday.adapter.ItemListAdapter
 import com.day.ourday.adapter.PictureListAdapter
+import com.day.ourday.data.entity.Event
 import com.day.ourday.data.entity.Item
 import com.day.ourday.util.getFullPath
 import java.util.*
@@ -26,10 +28,25 @@ fun setPictures(listView: RecyclerView, pictureFileList: List<String>?) {
 
 
 @BindingAdapter("app:loadImage")
-fun setImage(view: ImageView, fileName: String) {
-    Glide.with(view.context)
-            .load(getFullPath(fileName))
-            .skipMemoryCache(false)
-            .transition(withCrossFade())
-            .into(view)
+fun setImage(view: ImageView, fileName: String?) {
+    if (fileName == null) {
+        return
+    } else {
+        // TODO: 19-12-27 cross fade bug
+//        view.setImageBitmap(BitmapFactory.decodeFile(getFullPath(fileName)))
+        Glide.with(view.context)
+                .asDrawable()
+                .load(getFullPath(fileName))
+                .transition(withCrossFade())
+                .placeholder(view.drawable)
+                .skipMemoryCache(false)
+                .into(view)
+    }
 }
+
+@BindingAdapter("app:visibility")
+fun setVisibility(view: View, event: Event?) {
+    view.visibility = if (event?.type==Event.CHANGE) View.VISIBLE else View.GONE
+}
+
+

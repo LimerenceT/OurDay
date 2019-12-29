@@ -3,7 +3,6 @@ package com.day.ourday.fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -21,13 +20,14 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.commit451.nativestackblur.NativeStackBlur;
+import com.day.ourday.BR;
 import com.day.ourday.R;
 import com.day.ourday.adapter.ItemListAdapter;
+import com.day.ourday.data.entity.Event;
 import com.day.ourday.data.entity.Item;
 import com.day.ourday.databinding.FragmentMainBinding;
-import com.day.ourday.util.PicturePathUtilsKt;
 import com.day.ourday.viewmodel.ItemViewModel;
+import com.day.ourday.viewmodel.PictureViewModel;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 
@@ -35,8 +35,11 @@ public class MainFragment extends Fragment {
     private static final String TAG = "MainFragment";
     private ItemListAdapter recyclerViewAdapter;
     private ItemViewModel itemViewModel;
+    private PictureViewModel pictureViewModel;
     private FragmentMainBinding dataBinding;
     private Bitmap bitmap;
+    private SharedPreferences sharedPreferences;
+
 
     public MainFragment() {
         // Required empty public constructor
@@ -62,27 +65,31 @@ public class MainFragment extends Fragment {
 
     private void initData() {
         itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
+        pictureViewModel = ViewModelProviders.of(requireActivity()).get(PictureViewModel.class);
         recyclerViewAdapter = new ItemListAdapter();
         recyclerViewAdapter.setViewModel(itemViewModel);
         dataBinding.itemList.itemList.setAdapter(recyclerViewAdapter);
         itemTouchHelper.attachToRecyclerView(dataBinding.itemList.itemList);
-        dataBinding.setViewModel(itemViewModel);
+        dataBinding.setVariable(BR.itemViewModel, itemViewModel);
+        dataBinding.setVariable(BR.pictureViewModel, pictureViewModel);
         dataBinding.setLifecycleOwner(this);
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences("bg", Context.MODE_PRIVATE);
-        String fileName = sharedPreferences.getString("bgp", "");
-        bitmap = fileName.isEmpty() ? BitmapFactory.decodeResource(getContext().getResources(), R.drawable.tang) :
-                BitmapFactory.decodeFile(PicturePathUtilsKt.getFullPath(fileName));
-        ImageView blurView = getActivity().findViewById(R.id.imageBlurView);
-        blurView.setImageBitmap(NativeStackBlur.process(this.bitmap, 50));
-        blurView.setVisibility(View.VISIBLE);
-        dataBinding.seekBar.setVisibility(View.VISIBLE);
-
+        sharedPreferences = getContext().getSharedPreferences("bg", Context.MODE_PRIVATE);
+        dataBinding.blurConfirm.setOnClickListener(v -> {
+            int progress = dataBinding.blurSeekBar.getProgress();
+            sharedPreferences.edit().putInt("blurProgress", progress).apply();
+            dataBinding.blurView.setVisibility(View.GONE);
+        });
+        pictureViewModel.getBgChangeEvent().observe(this, event -> {
+            if (event.getType() == Event.CHANGE) {
+                dataBinding.blurSeekBar.setProgress(0);
+            }
+        });
     }
 
 
     private void setListener() {
 
-        dataBinding.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        dataBinding.blurSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -93,13 +100,13 @@ public class MainFragment extends Fragment {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                dataBinding.seekBar.setThumb(getResources().getDrawable(R.drawable.thumb_press));
+                dataBinding.blurSeekBar.setThumb(getResources().getDrawable(R.drawable.thumb_press));
 
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                dataBinding.seekBar.setThumb(getResources().getDrawable(R.drawable.thumb_normal));
+                dataBinding.blurSeekBar.setThumb(getResources().getDrawable(R.drawable.thumb_normal));
             }
         });
 

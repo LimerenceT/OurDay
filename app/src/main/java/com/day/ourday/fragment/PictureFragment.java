@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.day.ourday.adapter.PictureListAdapter;
+import com.day.ourday.data.entity.Event;
 import com.day.ourday.databinding.FragmentPictureBinding;
 import com.day.ourday.viewmodel.PictureListViewModel;
 import com.day.ourday.viewmodel.PictureViewModel;
@@ -64,11 +65,10 @@ public class PictureFragment extends Fragment {
         dataBinding.setViewModel(pictureListViewModel);
         dataBinding.pick.setOnClickListener(v -> pickPictureFromGallery());
         dataBinding.confirm.setOnClickListener(v -> {
-            pictureViewModel.getMainBgPictureName().setValue(fileName);
+            fileName = pictureViewModel.getMainBgPictureName().getValue();
+            pictureViewModel.getBgChangeEvent().setValue(new Event(Event.CHANGE));
             SharedPreferences sharedPreferences = getContext().getSharedPreferences("bg", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("bgp", fileName);
-            editor.apply();
+            sharedPreferences.edit().putString("bgp", fileName).apply();
             getFragmentManager().popBackStack(null, 1);
         });
         dataBinding.cancel.setOnClickListener(view -> {
@@ -79,10 +79,7 @@ public class PictureFragment extends Fragment {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3);
         dataBinding.pictureList.setLayoutManager(gridLayoutManager);
         dataBinding.pictureList.setAdapter(pictureListAdapter);
-        pictureViewModel.getMainBgPictureName().observe(this, (fileName)-> {
-            this.fileName = fileName;
-            dataBinding.confirm.setVisibility(View.VISIBLE);
-        });
+        pictureViewModel.getMainBgPictureName().observe(this, (fileName)-> dataBinding.confirm.setVisibility(View.VISIBLE));
     }
 
     @Override

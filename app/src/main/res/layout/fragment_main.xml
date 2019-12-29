@@ -6,8 +6,13 @@
 
     <data>
         <variable
-            name="viewModel"
+            name="itemViewModel"
             type="com.day.ourday.viewmodel.ItemViewModel"/>
+        <variable
+            name="pictureViewModel"
+            type="com.day.ourday.viewmodel.PictureViewModel" />
+
+        <import type="android.view.View" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -25,17 +30,20 @@
             <include
                 layout="@layout/item_list"
                 android:id="@+id/itemList"
-                bind:viewModel="@{viewModel}"/>
+                bind:viewModel="@{itemViewModel}"/>
         </FrameLayout>
 
 
         <LinearLayout
+            android:id="@+id/blur_view"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_gravity="bottom"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:background="@color/colorPrimaryDark"
-            android:orientation="horizontal">
-
+            android:orientation="horizontal"
+            app:visibility="@{pictureViewModel.bgChangeEvent}">
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -44,17 +52,16 @@
                 android:textColor="@android:color/white"
                 android:text="模糊"/>
             <SeekBar
-                android:id="@+id/seekBar"
+                android:id="@+id/blur_seekBar"
                 android:layout_height="40dp"
                 android:layout_width="0dp"
                 android:background="@null"
                 android:max="255"
                 android:progressTint="@android:color/white"
                 android:thumb="@drawable/thumb_normal"
-                android:layout_weight="6"
-                android:visibility="visible"
-                 />
+                android:layout_weight="6" />
             <Button
+                android:id="@+id/blur_confirm"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1.5"

@@ -1,9 +1,9 @@
 package com.day.ourday.viewmodel
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import com.day.ourday.data.entity.Event
 
 /**
  * Create by LimerenceT on 2019/12/24
@@ -11,15 +11,9 @@ import androidx.lifecycle.MutableLiveData
 class PictureViewModel(application: Application) : AndroidViewModel(application) {
     val mainBgPictureName: MutableLiveData<String> = MutableLiveData()
     val oldPictureName = MutableLiveData<String>()
+    val bgChangeEvent = MutableLiveData<Event>()
 
     init {
-        val sharedPreferences = application.getSharedPreferences("bg", Context.MODE_PRIVATE)
-        val bgp = sharedPreferences.getString("bgp", "")
-        if (bgp.isNullOrEmpty()) {
-            mainBgPictureName.value = null
-        } else {
-            mainBgPictureName.value = bgp
-        }
+        bgChangeEvent.value = Event(Event.START)
     }
-
 }

@@ -3,7 +3,10 @@ package com.day.ourday.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -12,60 +15,61 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.bumptech.glide.Glide;
+import com.commit451.nativestackblur.NativeStackBlur;
+import com.day.ourday.BR;
 import com.day.ourday.R;
+import com.day.ourday.data.entity.Event;
+import com.day.ourday.databinding.ActivityMainBinding;
 import com.day.ourday.fragment.MainFragment;
 import com.day.ourday.util.PicturePathUtilsKt;
 import com.day.ourday.viewmodel.PictureViewModel;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
+import static com.day.ourday.util.PicturePathUtilsKt.getFullPath;
 
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int STORAGE_PERMISSION = 0x20;
-    private ImageView bg;
-    private PictureViewModel pictureViewModel;
-    private SeekBar seekBar;
-
+    private SharedPreferences sharedPreferences;
+    private String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        bg = findViewById(R.id.imageView);
+        ActivityMainBinding dataBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         Toolbar myToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
 //        requestStoragePermission(this);
         displayFullBackground(this);
-        pictureViewModel = ViewModelProviders.of(this).get(PictureViewModel.class);
-        pictureViewModel.getMainBgPictureName().observe(this, fileName -> {
-                    if (fileName == null) {
-                        bg.setImageResource(R.drawable.tang);
-                    } else {
-                        // TODO: 19-12-27 cross fade bug
-                        Glide.with(this)
-                                .asDrawable()
-                                .load(PicturePathUtilsKt.getFullPath(fileName))
-                                .transition(withCrossFade())
-                                .placeholder(bg.getDrawable())
-                                .skipMemoryCache(false)
-                                .into(bg);
-                    }
-                }
-        );
+        PictureViewModel pictureViewModel = ViewModelProviders.of(this).get(PictureViewModel.class);
+        dataBinding.setVariable(BR.viewModel, pictureViewModel);
+        dataBinding.setLifecycleOwner(this);
+        sharedPreferences = getSharedPreferences("bg", Context.MODE_PRIVATE);
+        String bgp = sharedPreferences.getString("bgp", "");
+        Glide.with(this).asDrawable().load(bgp.isEmpty() ? BitmapFactory.decodeResource(getResources(), R.drawable.tang) :
+                BitmapFactory.decodeFile(PicturePathUtilsKt.getFullPath(bgp))).into(dataBinding.imageView);
+        int blurProgress = sharedPreferences.getInt("blurProgress", 0);
+        dataBinding.imageView.setImageAlpha(255 - blurProgress);
+        dataBinding.imageView.getForeground().setAlpha(blurProgress);
 
+        pictureViewModel.getBgChangeEvent().observe(this, event -> {
+            fileName = event.getType() == Event.START ? bgp : pictureViewModel.getMainBgPictureName().getValue();
 
+            Bitmap bitmap = fileName.isEmpty() ? BitmapFactory.decodeResource(getResources(), R.drawable.tang) :
+                    BitmapFactory.decodeFile(PicturePathUtilsKt.getFullPath(fileName));
+            Glide.with(this).asDrawable().load(NativeStackBlur.process(bitmap, 70)).into(dataBinding.imageBlurView);
+        });
 
         MainFragment mainFragment = MainFragment.newInstance();
         getSupportFragmentManager().beginTransaction()
