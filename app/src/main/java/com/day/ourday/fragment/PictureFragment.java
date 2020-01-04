@@ -15,8 +15,10 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.day.ourday.R;
 import com.day.ourday.adapter.PictureListAdapter;
 import com.day.ourday.data.entity.Event;
 import com.day.ourday.databinding.FragmentPictureBinding;
@@ -69,11 +71,11 @@ public class PictureFragment extends Fragment {
             pictureViewModel.getBgChangeEvent().setValue(new Event(Event.CHANGE));
             SharedPreferences sharedPreferences = getContext().getSharedPreferences("bg", Context.MODE_PRIVATE);
             sharedPreferences.edit().putString("bgp", fileName).apply();
-            getFragmentManager().popBackStack(null, 1);
+            Navigation.findNavController(v).navigate(R.id.action_pictureFragment_to_mainFragment);
         });
         dataBinding.cancel.setOnClickListener(view -> {
             pictureViewModel.getMainBgPictureName().setValue(pictureViewModel.getOldPictureName().getValue());
-            getFragmentManager().popBackStack();
+            Navigation.findNavController(view).navigate(R.id.action_pictureFragment_to_settingFragment);
         });
         PictureListAdapter pictureListAdapter = new PictureListAdapter(pictureViewModel);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3);

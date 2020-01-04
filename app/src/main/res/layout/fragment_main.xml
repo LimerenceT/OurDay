@@ -74,7 +74,6 @@
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="15dp"
             android:background="@android:color/darker_gray"
             android:theme="@style/AppTheme.AppBarOverlay">
 
@@ -90,6 +89,7 @@
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
+                    app:statusPadding="@{1}"
                     app:popupTheme="@style/AppTheme.PopupOverlay">
                     <TextView
                         android:id="@+id/setting"
@@ -118,7 +118,6 @@
                         android:layout_marginEnd="15dp"
                         android:drawableStart="@drawable/ic_plus_circle"
                         android:padding="2dp" />
-
 
                 </Toolbar>
             </com.google.android.material.appbar.CollapsingToolbarLayout>

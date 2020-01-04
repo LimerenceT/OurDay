@@ -10,7 +10,7 @@ import androidx.databinding.BindingAdapter;
  */
 public class MyBindingAdapter {
 
-    @BindingAdapter(value = {"app:days"})
+    @BindingAdapter(value = {"days"})
     public static void setColorAndText(TextView textView, int days) {
         if (days>0) {
             textView.setText("天后");

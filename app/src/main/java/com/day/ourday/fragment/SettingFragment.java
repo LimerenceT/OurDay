@@ -5,12 +5,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.Navigation;
 
 import com.day.ourday.R;
+import com.day.ourday.databinding.FragmentSettingBinding;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,19 +31,18 @@ public class SettingFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_setting, container, false);
-        TextView cancel = view.findViewById(R.id.cancel);
-        TextView chooseBg = view.findViewById(R.id.choose_bg);
 
-        cancel.setOnClickListener(v -> getFragmentManager().popBackStack());
-        chooseBg.setOnClickListener(v ->
-                getFragmentManager().beginTransaction()
-                        .addToBackStack(null).hide(this)
-                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                        .add(R.id.fragment_container, PictureFragment.newInstance())
-                        .commit());
-        return view;
+        FragmentSettingBinding dataBinding = FragmentSettingBinding.inflate(inflater, container, false);
+        dataBinding.cancel.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_settingFragment_to_mainFragment));
+
+        dataBinding.chooseBg.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.action_settingFragment_to_pictureFragment));
+//                getFragmentManager().beginTransaction()
+//                        .addToBackStack(null).hide(this)
+//                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+//                        .add(R.id.fragment_container, PictureFragment.newInstance())
+//                        .commit());
+        return dataBinding.getRoot();
     }
 
     @Override

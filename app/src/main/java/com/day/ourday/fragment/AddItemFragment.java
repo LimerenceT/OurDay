@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.Navigation;
 
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.view.TimePickerView;
@@ -118,10 +119,10 @@ public class AddItemFragment extends Fragment implements View.OnClickListener {
                 item.setName("".equals(editText.getText().toString()) ? "某天" : editText.getText().toString());
                 item.setDate(date);
                 itemViewModel.insert(item);
-                getFragmentManager().popBackStack();
+                Navigation.findNavController(view).navigate(R.id.action_addItemFragment_to_mainFragment);
                 break;
             case R.id.cancel:
-                getFragmentManager().popBackStack();
+                Navigation.findNavController(view).navigate(R.id.action_addItemFragment_to_mainFragment);
                 break;
             case R.id.window_date:
                 view.setFocusable(true);

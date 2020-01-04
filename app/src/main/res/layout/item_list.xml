@@ -11,7 +11,7 @@
             type="com.day.ourday.viewmodel.ItemViewModel"/>
     </data>
 
-    <com.day.ourday.view.SpringNestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/springNestedScrollview"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -36,5 +36,5 @@
                 app:items="@{viewModel.items}"
                 tools:listitem="@layout/item" />
         </LinearLayout>
-    </com.day.ourday.view.SpringNestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 </layout>

@@ -2,18 +2,10 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-
-        <!--<Item name="android:windowTranslucentStatus">false</Item>-->
-        <!--<Item name="android:windowTranslucentNavigation">false</Item>-->
-        <!--<Item name="android:windowDrawsSystemBarBackgrounds">true</Item>-->
-        <!--<Item name="android:statusBarColor">@android:color/transparent</Item>-->
-        <!--<Item name="android:navigationBarColor">@android:color/transparent</Item>-->
-        <!--<Item name="android:windowLightStatusBar">true</Item>-->
-
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
 
@@ -24,11 +16,9 @@
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="elevation">0dp</item>
-        <!--这里设置才有用，xml设置失效，原理还不知道。作用是AppBarLayout设置一个padding让这个view不会跑到StatusBar上-->
-<!--        <item name="android:fitsSystemWindows">true</item>-->
     </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 
     <style name="popwin_anim_style" parent="android:Animation">
